@@ -1,0 +1,116 @@
+.sidebar {
+    width: 280px;
+    background-color: #1e2028;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #3a3d4a;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+}
+
+.header {
+    padding: 20px;
+    border-bottom: 1px solid #3a3d4a;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logoText {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.nav {
+    flex: 1;
+    padding: 20px 0;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+
+    &:hover {
+        background-color: #2a2d3a;
+    }
+
+    &.active {
+        background-color: #2a2d3a;
+        border-right: 3px solid #00d4ff;
+
+        .text {
+            color: #00d4ff;
+        }
+    }
+}
+
+.icon {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+.text {
+    font-size: 14px;
+    color: #b8bcc8;
+    font-weight: 500;
+}
+
+.badge {
+    background-color: #ff6b6b;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+    margin-left: auto;
+}
+
+.divider {
+    height: 1px;
+    background-color: #3a3d4a;
+    margin: 10px 20px;
+}
+
+.footer {
+    padding: 20px;
+    border-top: 1px solid #3a3d4a;
+}
+
+.referralSection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background-color: #2a2d3a;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: #3a3d4a;
+    }
+}
+
+.referralIcon {
+    font-size: 16px;
+}
+
+.referralText {
+    font-size: 12px;
+    color: #ffd700;
+    font-weight: 600;
+}
