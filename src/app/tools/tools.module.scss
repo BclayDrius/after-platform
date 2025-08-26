@@ -1,0 +1,108 @@
+.toolsContainer {
+    max-width: 1200px;
+}
+
+.toolsHeader {
+    margin-bottom: 30px;
+
+    h2 {
+        font-size: 24px;
+        color: #ffffff;
+        margin-bottom: 8px;
+    }
+
+    p {
+        color: #b8bcc8;
+        font-size: 14px;
+    }
+}
+
+.toolsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.toolCard {
+    background-color: #1e2028;
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid #3a3d4a;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+}
+
+.toolIcon {
+    width: 60px;
+    height: 60px;
+    background-color: #2a2d3a;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.toolContent {
+    flex: 1;
+    margin-bottom: 20px;
+
+    h3 {
+        font-size: 18px;
+        color: #ffffff;
+        margin-bottom: 8px;
+    }
+
+    p {
+        color: #b8bcc8;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+    }
+}
+
+.toolStatus {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+
+    &.available {
+        background-color: #22c55e;
+        color: white;
+    }
+
+    &.comingsoon {
+        background-color: #6b7280;
+        color: white;
+    }
+}
+
+.toolBtn {
+    width: 100%;
+    background-color: #00d4ff;
+    color: #1e2028;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover:not(:disabled) {
+        background-color: #00b8e6;
+    }
+
+    &:disabled {
+        background-color: #3a3d4a;
+        color: #888;
+        cursor: not-allowed;
+    }
+}

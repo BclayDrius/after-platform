@@ -1,4 +1,6 @@
 import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import styles from './Sidebar.module.scss';
 
 const Sidebar = () => {
@@ -6,26 +8,32 @@ const Sidebar = () => {
     { name: 'Inicio', icon: '🏠', active: true },
     { name: 'Chat', icon: '💬' },
     { name: 'Mi ruta', icon: '🛤️' },
-    { name: 'CoderJobs', icon: '💼' },
     { name: 'Mis cursos', icon: '📚', badge: 'NUEVO' },
     { name: 'Discord', icon: '🎮' },
     { name: 'Notificaciones', icon: '🔔' },
   ];
 
   const sidebarItems = [
-    { name: 'Profile', icon: '👤' },
-    { name: 'Grades', icon: '📊' },
-    { name: 'Courses', icon: '📖' },
-    { name: 'Tools', icon: '🔧' },
-    { name: 'Ranking', icon: '🏆' },
+    { name: 'Profile', icon: '👤', href: '/profile' },
+    { name: 'Grades', icon: '📊', href: '/grades' },
+    { name: 'Courses', icon: '📖', href: '/courses' },
+    { name: 'Tools', icon: '🔧', href: '/tools' },
+    { name: 'Ranking', icon: '🏆', href: '/ranking' },
   ];
 
   return (
     <div className={styles.sidebar}>
       <div className={styles.header}>
-        <div className={styles.logo}>
+        <Link href="/" className={styles.logo}>
+          <Image 
+            src="/af.png" 
+            alt="After Life Academy" 
+            width={40} 
+            height={40}
+            className={styles.logoImage}
+          />
           <span className={styles.logoText}>AFTER LIFE ACADEMY</span>
-        </div>
+        </Link>
       </div>
       
       <nav className={styles.nav}>
@@ -47,10 +55,10 @@ const Sidebar = () => {
 
       <nav className={styles.nav}>
         {sidebarItems.map((item, index) => (
-          <div key={index} className={styles.navItem}>
+          <Link key={index} href={item.href} className={styles.navItem}>
             <span className={styles.icon}>{item.icon}</span>
             <span className={styles.text}>{item.name}</span>
-          </div>
+          </Link>
         ))}
       </nav>
 

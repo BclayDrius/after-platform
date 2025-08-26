@@ -1,0 +1,183 @@
+.rankingContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 1000px;
+}
+
+.userStats {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+}
+
+.currentRank {
+    background-color: #1e2028;
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid #3a3d4a;
+    text-align: center;
+
+    h3 {
+        font-size: 16px;
+        color: #ffffff;
+        margin-bottom: 20px;
+    }
+}
+
+.rankDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.rankNumber {
+    font-size: 48px;
+    font-weight: bold;
+    color: #00d4ff;
+}
+
+.rankPoints {
+    font-size: 14px;
+    color: #b8bcc8;
+}
+
+.achievements {
+    background-color: #1e2028;
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid #3a3d4a;
+
+    h3 {
+        font-size: 16px;
+        color: #ffffff;
+        margin-bottom: 20px;
+    }
+}
+
+.achievementGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.achievement {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+
+    &.earned {
+        background-color: #2a2d3a;
+
+        .achievementIcon {
+            filter: none;
+        }
+
+        .achievementTitle {
+            color: #ffffff;
+        }
+
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+
+    &.locked {
+        background-color: #1a1d24;
+
+        .achievementIcon {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+
+        .achievementTitle {
+            color: #666;
+        }
+    }
+}
+
+.achievementIcon {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.achievementTitle {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.leaderboard {
+    background-color: #1e2028;
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid #3a3d4a;
+
+    h3 {
+        font-size: 18px;
+        color: #ffffff;
+        margin-bottom: 20px;
+    }
+}
+
+.leaderboardList {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.leaderboardItem {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: center;
+    padding: 15px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: #2a2d3a;
+    }
+
+    &.currentUser {
+        background-color: #00d4ff20;
+        border: 1px solid #00d4ff;
+
+        .userName {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+    }
+}
+
+.userRank {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rankBadge {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+}
+
+.rankText {
+    font-size: 14px;
+    color: #b8bcc8;
+    font-weight: 600;
+}
+
+.userName {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.userPoints {
+    color: #b8bcc8;
+    font-size: 14px;
+    font-weight: 600;
+}

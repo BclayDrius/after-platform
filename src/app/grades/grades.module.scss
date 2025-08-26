@@ -1,0 +1,123 @@
+.gradesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 1000px;
+}
+
+.summaryCard {
+    background-color: #1e2028;
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid #3a3d4a;
+
+    h3 {
+        font-size: 18px;
+        color: #ffffff;
+        margin-bottom: 20px;
+    }
+}
+
+.summaryStats {
+    display: flex;
+    gap: 40px;
+}
+
+.summaryItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.summaryLabel {
+    font-size: 12px;
+    color: #b8bcc8;
+    margin-bottom: 5px;
+}
+
+.summaryValue {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00d4ff;
+}
+
+.gradesTable {
+    background-color: #1e2028;
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid #3a3d4a;
+
+    h3 {
+        font-size: 18px;
+        color: #ffffff;
+        margin-bottom: 20px;
+    }
+}
+
+.tableHeader {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 20px;
+    padding: 15px 0;
+    border-bottom: 2px solid #3a3d4a;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.tableRow {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 20px;
+    padding: 15px 0;
+    border-bottom: 1px solid #3a3d4a;
+    align-items: center;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.courseName {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.grade {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 12px;
+
+    &.gradeA {
+        background-color: #22c55e;
+        color: white;
+    }
+
+    &.gradeAMinus {
+        background-color: #16a34a;
+        color: white;
+    }
+
+    &.gradeBPlus {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    &.gradeB {
+        background-color: #2563eb;
+        color: white;
+    }
+}
+
+.score {
+    color: #b8bcc8;
+    font-weight: 500;
+}
+
+.date {
+    color: #888;
+    font-size: 12px;
+}
