@@ -254,3 +254,19 @@
         color: #ffffff;
     }
 }
+
+.loginLin k {
+    color: #00d4ff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: 1px solid #00d4ff;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: #00d4ff;
+        color: #1e2028;
+    }
+}

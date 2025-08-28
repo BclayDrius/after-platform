@@ -1,0 +1,168 @@
+.loginContainer {
+    min-height: 100vh;
+    background-color: #2a2d3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.loginCard {
+    background-color: #1e2028;
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #3a3d4a;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.logoSection {
+    text-align: center;
+    margin-bottom: 30px;
+
+    .logo {
+        border-radius: 12px;
+        margin-bottom: 16px;
+    }
+
+    h1 {
+        font-size: 24px;
+        color: #ffffff;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    p {
+        color: #b8bcc8;
+        font-size: 14px;
+    }
+}
+
+.loginForm {
+    margin-bottom: 24px;
+}
+
+.inputGroup {
+    margin-bottom: 20px;
+
+    label {
+        display: block;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 16px;
+        background-color: #2a2d3a;
+        border: 1px solid #3a3d4a;
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 14px;
+        transition: border-color 0.2s ease;
+
+        &:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        &::placeholder {
+            color: #888;
+        }
+    }
+}
+
+.formOptions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #b8bcc8;
+    font-size: 14px;
+    cursor: pointer;
+
+    input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+    }
+}
+
+.forgotLink {
+    color: #00d4ff;
+    font-size: 14px;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.loginBtn {
+    width: 100%;
+    background-color: #00d4ff;
+    color: #1e2028;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: #00b8e6;
+    }
+}
+
+.divider {
+    text-align: center;
+    margin: 24px 0;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background-color: #3a3d4a;
+    }
+
+    span {
+        background-color: #1e2028;
+        color: #888;
+        padding: 0 16px;
+        font-size: 14px;
+    }
+}
+
+.registerSection {
+    text-align: center;
+
+    p {
+        color: #b8bcc8;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+}
+
+.registerLink {
+    color: #00d4ff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

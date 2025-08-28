@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import styles from './MainContent.module.scss';
 
 const MainContent = () => {
@@ -12,6 +13,9 @@ const MainContent = () => {
           <h1 className={styles.title}>Inicio</h1>
         </div>
         <div className={styles.headerRight}>
+          <Link href="/login" className={styles.loginLink}>
+            Iniciar Sesión
+          </Link>
           <div className={styles.userProfile}>
             <div className={styles.avatar}>
               <span>👤</span>
