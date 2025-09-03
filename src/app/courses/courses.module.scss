@@ -1,5 +1,7 @@
+@import '../../styles/variables';
+
 .coursesContainer {
-    max-width: 1200px;
+    width: 100%;
 }
 
 .coursesHeader {
@@ -7,12 +9,12 @@
 
     h2 {
         font-size: 24px;
-        color: #ffffff;
+        color: $text-primary;
         margin-bottom: 8px;
     }
 
     p {
-        color: #b8bcc8;
+        color: $text-secondary;
         font-size: 14px;
     }
 }
@@ -24,14 +26,16 @@
 }
 
 .courseCard {
-    background-color: #1e2028;
+    background-color: $card-bg;
     border-radius: 12px;
     padding: 25px;
-    border: 1px solid #3a3d4a;
-    transition: transform 0.2s ease;
+    border: 1px solid $border-primary;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px $shadow-light;
 
     &:hover {
         transform: translateY(-2px);
+        box-shadow: 0 8px 25px $shadow-medium;
     }
 }
 
@@ -43,7 +47,7 @@
 
     h3 {
         font-size: 16px;
-        color: #ffffff;
+        color: $text-primary;
         font-weight: 600;
         flex: 1;
     }
@@ -57,18 +61,18 @@
     text-transform: uppercase;
 
     &.completed {
-        background-color: #22c55e;
-        color: white;
+        background-color: $accent-primary;
+        color: $primary-bg;
     }
 
     &.inprogress {
-        background-color: #f59e0b;
-        color: white;
+        background-color: $text-secondary;
+        color: $primary-bg;
     }
 
     &.notstarted {
-        background-color: #6b7280;
-        color: white;
+        background-color: $text-muted;
+        color: $primary-bg;
     }
 }
 
@@ -82,20 +86,20 @@
 .progressBar {
     flex: 1;
     height: 8px;
-    background-color: #3a3d4a;
+    background-color: $border-secondary;
     border-radius: 4px;
     overflow: hidden;
 }
 
 .progressFill {
     height: 100%;
-    background-color: #00d4ff;
+    background-color: $accent-primary;
     transition: width 0.3s ease;
 }
 
 .progressText {
     font-size: 12px;
-    color: #b8bcc8;
+    color: $text-secondary;
     font-weight: 600;
     min-width: 35px;
 }
@@ -111,7 +115,7 @@
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: #b8bcc8;
+    color: $text-secondary;
 }
 
 .detailIcon {
@@ -120,16 +124,19 @@
 
 .continueBtn {
     width: 100%;
-    background-color: #00d4ff;
-    color: #1e2028;
+    background: $gradient-primary;
+    color: $primary-bg;
     border: none;
-    padding: 10px;
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px $shadow-light;
 
     &:hover {
-        background-color: #00b8e6;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px $shadow-medium;
+        background: $gradient-secondary;
     }
 }

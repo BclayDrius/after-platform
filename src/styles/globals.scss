@@ -1,7 +1,14 @@
+@import 'variables';
+
+// ===== GLOBAL STYLES =====
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
@@ -10,8 +17,10 @@ body {
         sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #2a2d3a;
-    color: #ffffff;
+    background-color: $primary-bg;
+    color: $text-primary;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 a {
@@ -19,7 +28,35 @@ a {
     text-decoration: none;
 }
 
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+}
+
 .app-container {
     display: flex;
     min-height: 100vh;
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+// Optimizaciones de rendimiento
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+// Reducir repaints en elementos que cambian frecuentemente
+.will-change-transform {
+    will-change: transform;
+}
+
+.will-change-opacity {
+    will-change: opacity;
+}
+
+.will-change-background {
+    will-change: background-color;
 }

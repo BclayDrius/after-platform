@@ -1,98 +1,221 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import styles from './register.module.scss';
+"use client";
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useOptimizedNavigation } from "@/hooks/useOptimizedNavigation";
+import styles from "./register.module.scss";
+
+const API_URL = "http://127.0.0.1:8000/api";
 
 export default function Register() {
+  const { navigateTo } = useOptimizedNavigation();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    specialty: "",
+    acceptTerms: false,
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const specialties = [
+    "Desarrollo Web",
+    "Desarrollo Mobile",
+    "Data Science",
+    "DevOps",
+    "Diseño UX/UI",
+    "Ciberseguridad",
+    "Inteligencia Artificial",
+    "Blockchain",
+  ];
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    // Validaciones
+    if (formData.password !== formData.confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.acceptTerms) {
+      setError("Debes aceptar los términos y condiciones");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/students/register/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          specialty: formData.specialty,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Error al crear la cuenta");
+      } else {
+        // Registro exitoso, redirigir al login
+        navigateTo("/login?registered=true");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Error de conexión al servidor");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles.registerContainer}>
       <div className={styles.registerCard}>
         <div className={styles.logoSection}>
-          <Image 
-            src="/af.png" 
-            alt="After Life Academy" 
-            width={60} 
+          <Image
+            src="/af.png"
+            alt="After Life Academy"
+            width={60}
             height={60}
             className={styles.logo}
           />
-          <h1>After Life Academy</h1>
-          <p>Crea tu cuenta y comienza a aprender</p>
+          <h1>Crear Cuenta</h1>
+          <p>Únete a la comunidad de profesionales</p>
         </div>
 
-        <form className={styles.registerForm}>
-          <div className={styles.inputRow}>
+        <form className={styles.registerForm} onSubmit={handleSubmit}>
+          {error && <p className={styles.errorMsg}>{error}</p>}
+
+          <div className={styles.nameGroup}>
             <div className={styles.inputGroup}>
               <label htmlFor="firstName">Nombre</label>
-              <input 
-                type="text" 
-                id="firstName" 
-                name="firstName" 
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
                 placeholder="Tu nombre"
-                required 
+                required
+                value={formData.firstName}
+                onChange={handleChange}
               />
             </div>
+
             <div className={styles.inputGroup}>
               <label htmlFor="lastName">Apellido</label>
-              <input 
-                type="text" 
-                id="lastName" 
-                name="lastName" 
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
                 placeholder="Tu apellido"
-                required 
+                required
+                value={formData.lastName}
+                onChange={handleChange}
               />
             </div>
           </div>
 
           <div className={styles.inputGroup}>
             <label htmlFor="email">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
+            <input
+              type="email"
+              id="email"
+              name="email"
               placeholder="tu@email.com"
-              required 
+              required
+              value={formData.email}
+              onChange={handleChange}
             />
           </div>
 
           <div className={styles.inputGroup}>
-            <label htmlFor="password">Contraseña</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              placeholder="••••••••"
-              required 
-            />
+            <label htmlFor="specialty">Especialidad</label>
+            <select
+              id="specialty"
+              name="specialty"
+              required
+              value={formData.specialty}
+              onChange={handleChange}
+            >
+              <option value="">Selecciona tu especialidad</option>
+              {specialties.map((specialty) => (
+                <option key={specialty} value={specialty}>
+                  {specialty}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className={styles.inputGroup}>
-            <label htmlFor="confirmPassword">Confirmar Contraseña</label>
-            <input 
-              type="password" 
-              id="confirmPassword" 
-              name="confirmPassword" 
-              placeholder="••••••••"
-              required 
-            />
+          <div className={styles.passwordGroup}>
+            <div className={styles.inputGroup}>
+              <label htmlFor="password">Contraseña</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                required
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="confirmPassword">Confirmar Contraseña</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="••••••••"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
-          <div className={styles.termsSection}>
+          <div className={styles.checkboxGroup}>
             <label className={styles.checkbox}>
-              <input type="checkbox" required />
+              <input
+                type="checkbox"
+                name="acceptTerms"
+                checked={formData.acceptTerms}
+                onChange={handleChange}
+              />
               <span>
-                Acepto los{' '}
-                <Link href="/terms" className={styles.link}>
-                  Términos y Condiciones
-                </Link>
-                {' '}y la{' '}
-                <Link href="/privacy" className={styles.link}>
-                  Política de Privacidad
-                </Link>
+                Acepto los <Link href="/terms">términos y condiciones</Link> y
+                la <Link href="/privacy">política de privacidad</Link>
               </span>
             </label>
           </div>
 
-          <button type="submit" className={styles.registerBtn}>
-            Crear Cuenta
+          <button
+            type="submit"
+            className={styles.registerBtn}
+            disabled={loading}
+          >
+            {loading ? "Creando cuenta..." : "Crear Cuenta"}
           </button>
         </form>
 

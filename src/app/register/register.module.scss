@@ -1,6 +1,8 @@
+@import '../../styles/variables';
+
 .registerContainer {
     min-height: 100vh;
-    background-color: #2a2d3a;
+    background: $gradient-bg;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -8,13 +10,13 @@
 }
 
 .registerCard {
-    background-color: #1e2028;
-    border-radius: 16px;
+    background-color: $card-bg;
+    border-radius: 20px;
     padding: 40px;
     width: 100%;
-    max-width: 450px;
-    border: 1px solid #3a3d4a;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    border: 1px solid $border-primary;
+    box-shadow: 0 20px 60px $shadow-medium;
 }
 
 .logoSection {
@@ -24,18 +26,19 @@
     .logo {
         border-radius: 12px;
         margin-bottom: 16px;
+        box-shadow: 0 4px 20px $shadow-light;
     }
 
     h1 {
-        font-size: 24px;
-        color: #ffffff;
+        font-size: 28px;
+        color: $text-primary;
         margin-bottom: 8px;
-        font-weight: 600;
+        font-weight: 700;
     }
 
     p {
-        color: #b8bcc8;
-        font-size: 14px;
+        color: $text-secondary;
+        font-size: 16px;
     }
 }
 
@@ -43,11 +46,16 @@
     margin-bottom: 24px;
 }
 
-.inputRow {
+.nameGroup,
+.passwordGroup {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-bottom: 20px;
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .inputGroup {
@@ -55,45 +63,52 @@
 
     label {
         display: block;
-        color: #ffffff;
+        color: $text-primary;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         margin-bottom: 8px;
     }
 
-    input {
+    input,
+    select {
         width: 100%;
-        padding: 12px 16px;
-        background-color: #2a2d3a;
-        border: 1px solid #3a3d4a;
-        border-radius: 8px;
-        color: #ffffff;
+        padding: 14px 16px;
+        background-color: $hover-bg;
+        border: 1px solid $border-primary;
+        border-radius: 12px;
+        color: $text-primary;
         font-size: 14px;
-        transition: border-color 0.2s ease;
+        transition: all 0.3s ease;
 
         &:focus {
             outline: none;
-            border-color: #00d4ff;
+            border-color: $border-accent;
+            background-color: $primary-bg;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, $opacity-light);
         }
 
         &::placeholder {
-            color: #888;
+            color: $text-muted;
         }
+    }
+
+    select {
+        cursor: pointer;
     }
 }
 
-.termsSection {
+.checkboxGroup {
     margin-bottom: 24px;
 }
 
 .checkbox {
     display: flex;
     align-items: flex-start;
-    gap: 8px;
-    color: #b8bcc8;
+    gap: 12px;
+    color: $text-secondary;
     font-size: 14px;
     cursor: pointer;
-    line-height: 1.4;
+    line-height: 1.5;
 
     input[type="checkbox"] {
         width: auto;
@@ -101,31 +116,41 @@
         margin-top: 2px;
         flex-shrink: 0;
     }
-}
 
-.link {
-    color: #00d4ff;
-    text-decoration: none;
+    a {
+        color: $accent-primary;
+        font-weight: 600;
+        text-decoration: none;
 
-    &:hover {
-        text-decoration: underline;
+        &:hover {
+            text-decoration: underline;
+        }
     }
 }
 
 .registerBtn {
     width: 100%;
-    background-color: #00d4ff;
-    color: #1e2028;
+    background: $gradient-primary;
+    color: $primary-bg;
     border: none;
-    padding: 14px;
-    border-radius: 8px;
+    padding: 16px;
+    border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px $shadow-light;
 
-    &:hover {
-        background-color: #00b8e6;
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px $shadow-medium;
+        background: $gradient-secondary;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
     }
 }
 
@@ -141,12 +166,12 @@
         left: 0;
         right: 0;
         height: 1px;
-        background-color: #3a3d4a;
+        background-color: $border-primary;
     }
 
     span {
-        background-color: #1e2028;
-        color: #888;
+        background-color: $card-bg;
+        color: $text-muted;
         padding: 0 16px;
         font-size: 14px;
     }
@@ -156,14 +181,14 @@
     text-align: center;
 
     p {
-        color: #b8bcc8;
+        color: $text-secondary;
         font-size: 14px;
         margin-bottom: 8px;
     }
 }
 
 .loginLink {
-    color: #00d4ff;
+    color: $accent-primary;
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
@@ -171,4 +196,15 @@
     &:hover {
         text-decoration: underline;
     }
+}
+
+.errorMsg {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    text-align: center;
 }

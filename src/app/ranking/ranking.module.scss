@@ -1,28 +1,42 @@
+@import '../../styles/variables';
+
 .rankingContainer {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    max-width: 1000px;
+    width: 100%;
 }
 
 .userStats {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 30px;
-}
-
-.currentRank {
-    background-color: #1e2028;
-    border-radius: 12px;
-    padding: 30px;
-    border: 1px solid #3a3d4a;
-    text-align: center;
-
     h3 {
-        font-size: 16px;
-        color: #ffffff;
+        font-size: 18px;
+        color: $text-primary;
         margin-bottom: 20px;
     }
+}
+
+.currentUserCard {
+    background-color: $card-bg;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid $border-primary;
+    box-shadow: 0 2px 8px $shadow-light;
+    text-align: center;
+}
+
+.userName {
+    font-size: 18px;
+    color: $text-primary;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.userSpecialty {
+    font-size: 14px;
+    color: $text-secondary;
+    margin-bottom: 16px;
+    display: block;
 }
 
 .rankDisplay {
@@ -35,91 +49,51 @@
 .rankNumber {
     font-size: 48px;
     font-weight: bold;
-    color: #00d4ff;
+    color: $accent-primary;
 }
 
 .rankPoints {
     font-size: 14px;
-    color: #b8bcc8;
+    color: $text-secondary;
 }
 
-.achievements {
-    background-color: #1e2028;
-    border-radius: 12px;
-    padding: 30px;
-    border: 1px solid #3a3d4a;
+.searchBar {
+    margin-bottom: 20px;
 
-    h3 {
-        font-size: 16px;
-        color: #ffffff;
-        margin-bottom: 20px;
-    }
-}
+    input {
+        width: 100%;
+        max-width: 400px;
+        padding: 12px 16px;
+        background-color: $card-bg;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        color: $text-primary;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 3px $shadow-light;
 
-.achievementGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
-}
-
-.achievement {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 15px;
-    border-radius: 8px;
-    transition: transform 0.2s ease;
-
-    &.earned {
-        background-color: #2a2d3a;
-
-        .achievementIcon {
-            filter: none;
+        &:focus {
+            outline: none;
+            border-color: $border-accent;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, $opacity-light);
         }
 
-        .achievementTitle {
-            color: #ffffff;
-        }
-
-        &:hover {
-            transform: scale(1.05);
+        &::placeholder {
+            color: $text-muted;
         }
     }
-
-    &.locked {
-        background-color: #1a1d24;
-
-        .achievementIcon {
-            filter: grayscale(100%);
-            opacity: 0.5;
-        }
-
-        .achievementTitle {
-            color: #666;
-        }
-    }
-}
-
-.achievementIcon {
-    font-size: 24px;
-    margin-bottom: 8px;
-}
-
-.achievementTitle {
-    font-size: 10px;
-    font-weight: 500;
 }
 
 .leaderboard {
-    background-color: #1e2028;
+    background-color: $card-bg;
     border-radius: 12px;
     padding: 30px;
-    border: 1px solid #3a3d4a;
+    border: 1px solid $border-primary;
+    box-shadow: 0 2px 8px $shadow-light;
 
     h3 {
         font-size: 18px;
-        color: #ffffff;
+        color: $text-primary;
         margin-bottom: 20px;
     }
 }
@@ -136,18 +110,20 @@
     align-items: center;
     padding: 15px;
     border-radius: 8px;
-    transition: background-color 0.2s ease;
+    transition: all 0.3s ease;
+    background-color: $hover-bg;
 
     &:hover {
-        background-color: #2a2d3a;
+        background-color: $active-bg;
+        transform: translateX(4px);
     }
 
     &.currentUser {
-        background-color: #00d4ff20;
-        border: 1px solid #00d4ff;
+        background-color: rgba(0, 0, 0, 0.1);
+        border: 1px solid $accent-primary;
 
         .userName {
-            color: #00d4ff;
+            color: $accent-primary;
             font-weight: 600;
         }
     }
@@ -167,17 +143,12 @@
 
 .rankText {
     font-size: 14px;
-    color: #b8bcc8;
+    color: $text-secondary;
     font-weight: 600;
 }
 
-.userName {
-    color: #ffffff;
-    font-weight: 500;
-}
-
 .userPoints {
-    color: #b8bcc8;
+    color: $text-secondary;
     font-size: 14px;
     font-weight: 600;
 }

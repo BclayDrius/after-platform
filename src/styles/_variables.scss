@@ -1,0 +1,42 @@
+// ===== COLOR VARIABLES =====
+// Primary Colors (White-first theme)
+$primary-bg: #ffffff;
+$secondary-bg: #f8f9fa;
+$tertiary-bg: #f1f3f4;
+$card-bg: #ffffff;
+
+// Text Colors
+$text-primary: #000000;
+$text-secondary: #374151;
+$text-muted: #6b7280;
+$text-disabled: #9ca3af;
+
+// Border Colors
+$border-primary: #e5e7eb;
+$border-secondary: #d1d5db;
+$border-accent: #9ca3af;
+
+// Accent Colors
+$accent-primary: #000000;
+$accent-secondary: #374151;
+$accent-hover: #1f2937;
+
+// Interactive States
+$hover-bg: #f3f4f6;
+$active-bg: #e5e7eb;
+$focus-border: #6b7280;
+
+// Gradients
+$gradient-primary: linear-gradient(135deg, #000000 0%, #374151 100%);
+$gradient-secondary: linear-gradient(135deg, #374151 0%, #6b7280 100%);
+$gradient-bg: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #f1f3f4 100%);
+
+// Shadows
+$shadow-light: rgba(0, 0, 0, 0.05);
+$shadow-medium: rgba(0, 0, 0, 0.1);
+$shadow-heavy: rgba(0, 0, 0, 0.15);
+
+// Opacity Levels
+$opacity-light: 0.05;
+$opacity-medium: 0.1;
+$opacity-heavy: 0.15;

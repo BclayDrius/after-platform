@@ -1,15 +1,18 @@
+@import '../../styles/variables';
+
 .profileContainer {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    max-width: 800px;
+    width: 100%;
 }
 
 .profileCard {
-    background-color: #1e2028;
+    background-color: $card-bg;
     border-radius: 12px;
     padding: 30px;
-    border: 1px solid #3a3d4a;
+    border: 1px solid $border-primary;
+    box-shadow: 0 2px 8px $shadow-light;
 }
 
 .profileHeader {
@@ -23,29 +26,31 @@
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background-color: #3a3d4a;
+    background: $gradient-secondary;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 32px;
+    border: 2px solid $border-primary;
+    color: $primary-bg;
 }
 
 .profileInfo {
     h2 {
         font-size: 24px;
-        color: #ffffff;
+        color: $text-primary;
         margin-bottom: 5px;
     }
 
     p {
-        color: #b8bcc8;
+        color: $text-secondary;
         margin-bottom: 5px;
     }
 }
 
 .memberSince {
     font-size: 12px;
-    color: #888;
+    color: $text-muted;
 }
 
 .profileStats {
@@ -63,24 +68,25 @@
 .statValue {
     font-size: 28px;
     font-weight: bold;
-    color: #00d4ff;
+    color: $accent-primary;
     margin-bottom: 5px;
 }
 
 .statLabel {
     font-size: 12px;
-    color: #b8bcc8;
+    color: $text-secondary;
 }
 
 .settingsCard {
-    background-color: #1e2028;
+    background-color: $card-bg;
     border-radius: 12px;
     padding: 30px;
-    border: 1px solid #3a3d4a;
+    border: 1px solid $border-primary;
+    box-shadow: 0 2px 8px $shadow-light;
 
     h3 {
         font-size: 18px;
-        color: #ffffff;
+        color: $text-primary;
         margin-bottom: 20px;
     }
 }
@@ -90,24 +96,102 @@
     justify-content: space-between;
     align-items: center;
     padding: 15px 0;
-    border-bottom: 1px solid #3a3d4a;
+    border-bottom: 1px solid $border-primary;
 
     &:last-child {
         border-bottom: none;
     }
 
     span {
-        color: #b8bcc8;
+        color: $text-secondary;
     }
 }
 
 .toggleBtn {
-    background-color: #00d4ff;
-    color: #1e2028;
+    background: $gradient-primary;
+    color: $primary-bg;
     border: none;
     padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: $gradient-secondary;
+        transform: translateY(-1px);
+    }
+}
+
+.logoutBtn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(239, 68, 68, 0.2);
+        transform: translateY(-1px);
+    }
+}
+
+.loadingState {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    background-color: $card-bg;
+    border-radius: 12px;
+    border: 1px solid $border-primary;
+    box-shadow: 0 2px 8px $shadow-light;
+
+    p {
+        color: $text-secondary;
+        font-size: 16px;
+    }
+}
+
+.errorState {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    background-color: $card-bg;
+    border-radius: 12px;
+    border: 1px solid $border-primary;
+    box-shadow: 0 2px 8px $shadow-light;
+    text-align: center;
+    gap: 20px;
+
+    p {
+        color: $text-secondary;
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+}
+
+.loginBtn {
+    background: $gradient-primary;
+    color: $primary-bg;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px $shadow-light;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px $shadow-medium;
+        background: $gradient-secondary;
+    }
 }

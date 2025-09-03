@@ -1,7 +1,44 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Optimizaciones de rendimiento
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@/components', '@/styles'],
+  },
+  
+  // Compresión
+  compress: true,
+  
+  // Optimización de imágenes
+  images: {
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
+  },
+  
+  // Configuración de Sass
+  sassOptions: {
+    includePaths: ['./src/styles'],
+  },
+  
+  // Headers de rendimiento
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          }
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

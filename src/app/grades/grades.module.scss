@@ -1,19 +1,22 @@
+@import '../../styles/variables';
+
 .gradesContainer {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    max-width: 1000px;
+    width: 100%;
 }
 
 .summaryCard {
-    background-color: #1e2028;
+    background-color: $card-bg;
     border-radius: 12px;
     padding: 30px;
-    border: 1px solid #3a3d4a;
+    border: 1px solid $border-primary;
+    box-shadow: 0 2px 8px $shadow-light;
 
     h3 {
         font-size: 18px;
-        color: #ffffff;
+        color: $text-primary;
         margin-bottom: 20px;
     }
 }
@@ -32,25 +35,26 @@
 
 .summaryLabel {
     font-size: 12px;
-    color: #b8bcc8;
+    color: $text-secondary;
     margin-bottom: 5px;
 }
 
 .summaryValue {
     font-size: 24px;
     font-weight: bold;
-    color: #00d4ff;
+    color: $accent-primary;
 }
 
 .gradesTable {
-    background-color: #1e2028;
+    background-color: $card-bg;
     border-radius: 12px;
     padding: 30px;
-    border: 1px solid #3a3d4a;
+    border: 1px solid $border-primary;
+    box-shadow: 0 2px 8px $shadow-light;
 
     h3 {
         font-size: 18px;
-        color: #ffffff;
+        color: $text-primary;
         margin-bottom: 20px;
     }
 }
@@ -60,9 +64,9 @@
     grid-template-columns: 2fr 1fr 1fr 1fr;
     gap: 20px;
     padding: 15px 0;
-    border-bottom: 2px solid #3a3d4a;
+    border-bottom: 2px solid $border-primary;
     font-weight: 600;
-    color: #ffffff;
+    color: $text-primary;
     font-size: 14px;
 }
 
@@ -71,7 +75,7 @@
     grid-template-columns: 2fr 1fr 1fr 1fr;
     gap: 20px;
     padding: 15px 0;
-    border-bottom: 1px solid #3a3d4a;
+    border-bottom: 1px solid $border-primary;
     align-items: center;
 
     &:last-child {
@@ -80,7 +84,7 @@
 }
 
 .courseName {
-    color: #ffffff;
+    color: $text-primary;
     font-weight: 500;
 }
 
@@ -92,32 +96,32 @@
     font-size: 12px;
 
     &.gradeA {
-        background-color: #22c55e;
-        color: white;
+        background-color: $accent-primary;
+        color: $primary-bg;
     }
 
     &.gradeAMinus {
-        background-color: #16a34a;
-        color: white;
+        background-color: $text-primary;
+        color: $primary-bg;
     }
 
     &.gradeBPlus {
-        background-color: #3b82f6;
-        color: white;
+        background-color: $text-secondary;
+        color: $primary-bg;
     }
 
     &.gradeB {
-        background-color: #2563eb;
-        color: white;
+        background-color: $text-muted;
+        color: $primary-bg;
     }
 }
 
 .score {
-    color: #b8bcc8;
+    color: $text-secondary;
     font-weight: 500;
 }
 
 .date {
-    color: #888;
+    color: $text-muted;
     font-size: 12px;
 }

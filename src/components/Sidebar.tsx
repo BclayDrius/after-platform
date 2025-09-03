@@ -1,53 +1,61 @@
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import styles from './Sidebar.module.scss';
+"use client";
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import styles from "./Sidebar.module.scss";
 
 const Sidebar = () => {
+  const pathname = usePathname();
+
   const menuItems = [
-    { name: 'Inicio', icon: '🏠', active: true },
-    { name: 'Chat', icon: '💬' },
-    { name: 'Mi ruta', icon: '🛤️' },
-    { name: 'Mis cursos', icon: '📚', badge: 'NUEVO' },
-    { name: 'Discord', icon: '🎮' },
-    { name: 'Notificaciones', icon: '🔔' },
+    { name: "Inicio", icon: "🏠", href: "/" },
+    { name: "Mi ruta", icon: "🛤️", href: "/learning-path", badge: "NUEVO" },
+    {
+      name: "Discord",
+      icon: "🎮",
+      href: "https://discord.gg/b8xxX6sy",
+      target: "_blank",
+    },
   ];
 
   const sidebarItems = [
-    { name: 'Profile', icon: '👤', href: '/profile' },
-    { name: 'Grades', icon: '📊', href: '/grades' },
-    { name: 'Courses', icon: '📖', href: '/courses' },
-    { name: 'Tools', icon: '🔧', href: '/tools' },
-    { name: 'Ranking', icon: '🏆', href: '/ranking' },
+    { name: "Profile", icon: "👤", href: "/profile" },
+    { name: "Grades", icon: "📊", href: "/grades" },
+    { name: "Courses", icon: "📖", href: "/courses" },
+    { name: "Tools", icon: "🔧", href: "/tools" },
+    { name: "Ranking", icon: "🏆", href: "/ranking" },
   ];
 
   return (
     <div className={styles.sidebar}>
       <div className={styles.header}>
         <Link href="/" className={styles.logo}>
-          <Image 
-            src="/af.png" 
-            alt="After Life Academy" 
-            width={40} 
+          <Image
+            src="/af.png"
+            alt="After Life Academy"
+            width={40}
             height={40}
             className={styles.logoImage}
           />
           <span className={styles.logoText}>AFTER LIFE ACADEMY</span>
         </Link>
       </div>
-      
+
       <nav className={styles.nav}>
         {menuItems.map((item, index) => (
-          <div 
-            key={index} 
-            className={`${styles.navItem} ${item.active ? styles.active : ''}`}
+          <Link
+            key={index}
+            href={item.href}
+            className={`${styles.navItem} ${
+              pathname === item.href ? styles.active : ""
+            }`}
+            prefetch={true}
           >
             <span className={styles.icon}>{item.icon}</span>
             <span className={styles.text}>{item.name}</span>
-            {item.badge && (
-              <span className={styles.badge}>{item.badge}</span>
-            )}
-          </div>
+            {item.badge && <span className={styles.badge}>{item.badge}</span>}
+          </Link>
         ))}
       </nav>
 
@@ -55,7 +63,14 @@ const Sidebar = () => {
 
       <nav className={styles.nav}>
         {sidebarItems.map((item, index) => (
-          <Link key={index} href={item.href} className={styles.navItem}>
+          <Link
+            key={index}
+            href={item.href}
+            className={`${styles.navItem} ${
+              pathname === item.href ? styles.active : ""
+            }`}
+            prefetch={true}
+          >
             <span className={styles.icon}>{item.icon}</span>
             <span className={styles.text}>{item.name}</span>
           </Link>
