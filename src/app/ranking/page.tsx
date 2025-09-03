@@ -1,74 +1,128 @@
-import Sidebar from '@/components/Sidebar';
-import PageLayout from '@/components/PageLayout';
-import styles from './ranking.module.scss';
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import Sidebar from "@/components/Sidebar";
+import PageLayout from "@/components/PageLayout";
+import styles from "./ranking.module.scss";
+
+// Tipado del usuario en el ranking
+interface UserRank {
+  id: string;
+  first_name: string;
+  last_name: string;
+  specialty?: string;
+  aura: number;
+  rank: number;
+}
 
 export default function Ranking() {
-  const leaderboard = [
-    { rank: 1, name: 'Alex Johnson', points: 2450, badge: '🥇' },
-    { rank: 2, name: 'Sarah Chen', points: 2380, badge: '🥈' },
-    { rank: 3, name: 'Mike Rodriguez', points: 2290, badge: '🥉' },
-    { rank: 4, name: 'Emma Wilson', points: 2150, badge: '' },
-    { rank: 5, name: 'David Kim', points: 2080, badge: '' },
-    { rank: 6, name: 'Lisa Thompson', points: 1950, badge: '' },
-    { rank: 7, name: 'You', points: 1890, badge: '', isCurrentUser: true },
-    { rank: 8, name: 'John Davis', points: 1820, badge: '' },
-    { rank: 9, name: 'Maria Garcia', points: 1750, badge: '' },
-    { rank: 10, name: 'Tom Anderson', points: 1680, badge: '' },
-  ];
+  const router = useRouter();
+  const [ranking, setRanking] = useState<UserRank[]>([]);
+  const [userRank, setUserRank] = useState<UserRank | null>(null);
+  const [search, setSearch] = useState<string>("");
 
-  const achievements = [
-    { title: 'First Course Completed', icon: '🎓', earned: true },
-    { title: 'Week Streak', icon: '🔥', earned: true },
-    { title: 'Perfect Score', icon: '💯', earned: true },
-    { title: 'Top 10 Ranking', icon: '🏆', earned: false },
-    { title: 'Mentor Helper', icon: '🤝', earned: false },
-    { title: 'Code Master', icon: '👨‍💻', earned: false },
-  ];
+  // Función de debounce para evitar fetch en cada letra
+  const debounce = (fn: Function, delay: number) => {
+    let timer: NodeJS.Timeout;
+    return (...args: any) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
+  };
+
+  const fetchRanking = async (searchTerm: string) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/ranking/?search=${searchTerm}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Error fetching ranking");
+
+      const data = await res.json();
+      setRanking(data.ranking);
+      setUserRank(data.user_rank);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Debounced version de fetchRanking
+  const debouncedFetch = useCallback(debounce(fetchRanking, 400), []);
+
+  useEffect(() => {
+    debouncedFetch(search);
+  }, [search, debouncedFetch]);
+
+  // Filtrado local de ranking
+  const filteredRanking = ranking.filter((user) =>
+    `${user.first_name} ${user.last_name}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
+  // Redirige al perfil del usuario
+  const goToProfile = (userId: string) => {
+    router.push(`/profile/${userId}`);
+  };
 
   return (
     <>
       <Sidebar />
       <PageLayout title="Ranking">
         <div className={styles.rankingContainer}>
-          <div className={styles.userStats}>
-            <div className={styles.currentRank}>
+          {userRank && (
+            <div className={styles.userStats}>
               <h3>Your Current Rank</h3>
-              <div className={styles.rankDisplay}>
-                <span className={styles.rankNumber}>#7</span>
-                <span className={styles.rankPoints}>1,890 points</span>
+              <div className={styles.currentUserCard}>
+                <span className={styles.userName}>
+                  {userRank.first_name} {userRank.last_name}
+                </span>
+                <span className={styles.userSpecialty}>
+                  {userRank.specialty || "No definida"}
+                </span>
+                <div className={styles.rankDisplay}>
+                  <span className={styles.rankNumber}>#{userRank.rank}</span>
+                  <span className={styles.rankPoints}>{userRank.aura} aura</span>
+                </div>
               </div>
             </div>
-            
-            <div className={styles.achievements}>
-              <h3>Achievements</h3>
-              <div className={styles.achievementGrid}>
-                {achievements.map((achievement, index) => (
-                  <div 
-                    key={index} 
-                    className={`${styles.achievement} ${achievement.earned ? styles.earned : styles.locked}`}
-                  >
-                    <span className={styles.achievementIcon}>{achievement.icon}</span>
-                    <span className={styles.achievementTitle}>{achievement.title}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          )}
+
+          <div className={styles.searchBar}>
+            <input
+              type="text"
+              placeholder="Buscar alumno..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
 
           <div className={styles.leaderboard}>
             <h3>Global Leaderboard</h3>
             <div className={styles.leaderboardList}>
-              {leaderboard.map((user, index) => (
-                <div 
-                  key={index} 
-                  className={`${styles.leaderboardItem} ${user.isCurrentUser ? styles.currentUser : ''}`}
+              {filteredRanking.map((user) => (
+                <div
+                  key={user.id}
+                  className={`${styles.leaderboardItem} ${
+                    userRank && user.id === userRank.id ? styles.currentUser : ""
+                  }`}
+                  onClick={() => goToProfile(user.id)}
+                  style={{ cursor: "pointer" }}
                 >
                   <div className={styles.userRank}>
-                    <span className={styles.rankBadge}>{user.badge}</span>
                     <span className={styles.rankText}>#{user.rank}</span>
                   </div>
-                  <span className={styles.userName}>{user.name}</span>
-                  <span className={styles.userPoints}>{user.points.toLocaleString()} pts</span>
+                  <span className={styles.userName}>
+                    {user.first_name} {user.last_name}
+                  </span>
+                  <span className={styles.userPoints}>{user.aura} aura</span>
                 </div>
               ))}
             </div>
