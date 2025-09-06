@@ -1,46 +1,45 @@
-'use client';
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import styles from './login.module.scss';
-
-const API_URL = "http://127.0.0.1:8000/api"; // tu backend
+"use client";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { mockAuthService, mockStorage } from "@/utils/mockAuth";
+import styles from "./login.module.scss";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Verificar si viene de registro exitoso
+    if (searchParams.get("registered") === "true") {
+      setSuccessMessage(
+        "¡Cuenta creada exitosamente! Ahora puedes iniciar sesión."
+      );
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const res = await fetch(`${API_URL}/students/login/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
+      const loginResponse = await mockAuthService.login(email, password);
 
-      const data = await res.json();
+      // Guardar tokens y datos del usuario
+      mockStorage.setAuthData(loginResponse);
 
-      if (!res.ok) {
-        setError(data.error || 'Error al iniciar sesión');
-      } else {
-        // Guardar tokens y datos del usuario
-        localStorage.setItem('accessToken', data.access);
-        localStorage.setItem('refreshToken', data.refresh);
-        localStorage.setItem('userRole', data.role);
-        localStorage.setItem('userId', data.id);
-
-        // Redirigir al dashboard
-        window.location.href = '/'; 
-      }
+      // Redirigir al dashboard o a la página solicitada
+      const redirectUrl = searchParams.get("redirect") || "/";
+      window.location.href = redirectUrl;
     } catch (err) {
       console.error(err);
-      setError('Error de conexión al servidor');
+      setError(err.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
@@ -50,10 +49,10 @@ export default function Login() {
     <div className={styles.loginContainer}>
       <div className={styles.loginCard}>
         <div className={styles.logoSection}>
-          <Image 
-            src="/af.png" 
-            alt="After Life Academy" 
-            width={60} 
+          <Image
+            src="/af.png"
+            alt="After Life Academy"
+            width={60}
             height={60}
             className={styles.logo}
           />
@@ -63,15 +62,18 @@ export default function Login() {
 
         <form className={styles.loginForm} onSubmit={handleSubmit}>
           {error && <p className={styles.errorMsg}>{error}</p>}
+          {successMessage && (
+            <p className={styles.successMsg}>{successMessage}</p>
+          )}
 
           <div className={styles.inputGroup}>
             <label htmlFor="email">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
+            <input
+              type="email"
+              id="email"
+              name="email"
               placeholder="tu@email.com"
-              required 
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -79,12 +81,12 @@ export default function Login() {
 
           <div className={styles.inputGroup}>
             <label htmlFor="password">Contraseña</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
+            <input
+              type="password"
+              id="password"
+              name="password"
               placeholder="••••••••"
-              required 
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -101,9 +103,27 @@ export default function Login() {
           </div>
 
           <button type="submit" className={styles.loginBtn} disabled={loading}>
-            {loading ? 'Cargando...' : 'Iniciar Sesión'}
+            {loading ? "Cargando..." : "Iniciar Sesión"}
           </button>
         </form>
+
+        <div className={styles.demoCredentials}>
+          <h4>Credenciales de Prueba:</h4>
+          <div className={styles.credentialsList}>
+            <div className={styles.credentialItem}>
+              <strong>Estudiante:</strong> student@test.com
+            </div>
+            <div className={styles.credentialItem}>
+              <strong>Profesor:</strong> teacher@test.com
+            </div>
+            <div className={styles.credentialItem}>
+              <strong>Admin:</strong> admin@test.com
+            </div>
+            <div className={styles.credentialItem}>
+              <strong>Contraseña:</strong> password123
+            </div>
+          </div>
+        </div>
 
         <div className={styles.divider}>
           <span>o</span>

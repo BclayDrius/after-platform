@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useOptimizedNavigation } from "@/hooks/useOptimizedNavigation";
+import { mockAuthService } from "@/utils/mockAuth";
 import styles from "./contact.module.scss";
 
 export default function Contact() {
@@ -56,17 +57,7 @@ export default function Contact() {
     setError("");
 
     try {
-      // Simular envío del formulario (aquí integrarías con tu backend o servicio de email)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // En un caso real, harías algo como:
-      // const response = await fetch('/api/contact', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-
-      console.log("Datos del formulario:", formData);
+      await mockAuthService.submitContactForm(formData);
       setIsSubmitted(true);
     } catch (err) {
       setError("Error al enviar el formulario. Por favor, inténtalo de nuevo.");

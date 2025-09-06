@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
+import AuthGuard from "@/components/AuthGuard";
+import { mockAuthService, mockStorage } from "@/utils/mockAuth";
 import styles from "./courses.module.scss";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 // -----------------------
 // Helper fetch con JWT
@@ -16,7 +16,9 @@ async function fetchAPI(
   data: any = null,
   token: string | null = null
 ) {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   const config: RequestInit = { method, headers };
@@ -25,8 +27,8 @@ async function fetchAPI(
   const res = await fetch(endpoint, config);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `API request failed with status ${res.status}`
-      
+    throw new Error(
+      err.detail || `API request failed with status ${res.status}`
     );
   }
   return res.json();
@@ -88,50 +90,64 @@ export default function Courses() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      setLoading(false);
-      setError("No JWT token found, please login.");
-      return;
-    }
+    const loadCourses = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          setLoading(false);
+          setError("No JWT token found, please login.");
+          return;
+        }
 
-    const decodedUser = parseJwt(token);
+        const decodedUser = parseJwt(token);
 
-// Validación segura
-if (!decodedUser || !("role" in decodedUser)) {
-  setLoading(false);
-  setError("Invalid token, please login again.");
-  return;
-}
+        // Validación segura
+        if (!decodedUser || !("role" in decodedUser)) {
+          setLoading(false);
+          setError("Invalid token, please login again.");
+          return;
+        }
 
-// Forzar role a minúscula para consistencia
-decodedUser.role = (decodedUser.role as string).toLowerCase();
+        // Forzar role a minúscula para consistencia
+        decodedUser.role = (decodedUser.role as string).toLowerCase();
 
-setUser(decodedUser);
+        setUser(decodedUser);
 
-// Definir endpoint según rol
-const endpoint =
-  decodedUser.role === "teacher"
-    ? `${API_URL}/courses/teacher/courses/`
-    : `${API_URL}/courses/student/courses/`;
+        // Obtener cursos según el rol usando mock
+        const coursesData =
+          decodedUser.role === "teacher"
+            ? await mockAuthService.getTeacherCourses()
+            : await mockAuthService.getStudentCourses();
 
+        setCourses(coursesData);
+      } catch (err) {
+        setError(err.message || "Error al cargar los cursos");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    fetchAPI(endpoint, "GET", null, token)
-      .then(setCourses)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    loadCourses();
   }, []);
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
 
   return (
-    <>
+    <AuthGuard>
       <Sidebar />
-      <PageLayout title={user?.role === "teacher" ? "Courses I Teach" : "My Learning Path"}>
+      <PageLayout
+        title={
+          user?.role === "teacher" ? "Courses I Teach" : "My Learning Path"
+        }
+      >
         <div className={styles.coursesContainer}>
           <div className={styles.coursesHeader}>
-            <h2>{user?.role === "teacher" ? "Courses I Teach" : "My Learning Path"}</h2>
+            <h2>
+              {user?.role === "teacher"
+                ? "Courses I Teach"
+                : "My Learning Path"}
+            </h2>
             <p>
               {user?.role === "teacher"
                 ? "Manage your courses and track student progress"
@@ -150,7 +166,9 @@ const endpoint =
                     {user?.role === "student" && (
                       <span
                         className={`${styles.status} ${
-                          styles[course.status?.replace(" ", "").toLowerCase() || ""]
+                          styles[
+                            course.status?.replace(" ", "").toLowerCase() || ""
+                          ]
                         }`}
                       >
                         {course.status}
@@ -166,7 +184,9 @@ const endpoint =
                           style={{ width: `${course.progress || 0}%` }}
                         ></div>
                       </div>
-                      <span className={styles.progressText}>{course.progress || 0}%</span>
+                      <span className={styles.progressText}>
+                        {course.progress || 0}%
+                      </span>
                     </div>
                   )}
 
@@ -186,7 +206,17 @@ const endpoint =
 
                   <button
                     className={styles.continueBtn}
-                    onClick={() => (window.location.href = `/courses/${course.id}`)}
+                    onClick={() => {
+                      // Mapear títulos a IDs de curso
+                      const courseMap: Record<string, string> = {
+                        "JavaScript Fundamentals": "javascript",
+                        "React Development": "react",
+                        "Node.js Backend": "nodejs",
+                        "TypeScript Avanzado": "typescript",
+                      };
+                      const courseId = courseMap[course.title] || "javascript";
+                      window.location.href = `/courses/${courseId}`;
+                    }}
                   >
                     {user?.role === "student"
                       ? course.progress === 0
@@ -202,6 +232,6 @@ const endpoint =
           )}
         </div>
       </PageLayout>
-    </>
+    </AuthGuard>
   );
 }

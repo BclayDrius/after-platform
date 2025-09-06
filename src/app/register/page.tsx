@@ -3,9 +3,8 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useOptimizedNavigation } from "@/hooks/useOptimizedNavigation";
+import { mockAuthService } from "@/utils/mockAuth";
 import styles from "./register.module.scss";
-
-const API_URL = "http://127.0.0.1:8000/api";
 
 export default function Register() {
   const { navigateTo } = useOptimizedNavigation();
@@ -62,29 +61,19 @@ export default function Register() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/students/register/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          specialty: formData.specialty,
-        }),
+      await mockAuthService.register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        specialty: formData.specialty,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Error al crear la cuenta");
-      } else {
-        // Registro exitoso, redirigir al login
-        navigateTo("/login?registered=true");
-      }
+      // Registro exitoso, redirigir al login
+      navigateTo("/login?registered=true");
     } catch (err) {
       console.error(err);
-      setError("Error de conexión al servidor");
+      setError(err.message || "Error al crear la cuenta");
     } finally {
       setLoading(false);
     }

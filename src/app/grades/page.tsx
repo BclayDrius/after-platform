@@ -1,18 +1,24 @@
-import Sidebar from '@/components/Sidebar';
-import PageLayout from '@/components/PageLayout';
-import styles from './grades.module.scss';
+import Sidebar from "@/components/Sidebar";
+import PageLayout from "@/components/PageLayout";
+import AuthGuard from "@/components/AuthGuard";
+import styles from "./grades.module.scss";
 
 export default function Grades() {
   const grades = [
-    { course: 'JavaScript Fundamentals', grade: 'A', score: 92, date: '2024-01-15' },
-    { course: 'React Development', grade: 'B+', score: 87, date: '2024-01-20' },
-    { course: 'Node.js Backend', grade: 'A-', score: 89, date: '2024-01-25' },
-    { course: 'Database Design', grade: 'B', score: 83, date: '2024-01-30' },
-    { course: 'API Development', grade: 'A', score: 94, date: '2024-02-05' },
+    {
+      course: "JavaScript Fundamentals",
+      grade: "A",
+      score: 92,
+      date: "2024-01-15",
+    },
+    { course: "React Development", grade: "B+", score: 87, date: "2024-01-20" },
+    { course: "Node.js Backend", grade: "A-", score: 89, date: "2024-01-25" },
+    { course: "Database Design", grade: "B", score: 83, date: "2024-01-30" },
+    { course: "API Development", grade: "A", score: 94, date: "2024-02-05" },
   ];
 
   return (
-    <>
+    <AuthGuard>
       <Sidebar />
       <PageLayout title="Grades">
         <div className={styles.gradesContainer}>
@@ -43,7 +49,9 @@ export default function Grades() {
               <span>Date</span>
             </div>
             {grades.map((grade, index) => {
-              const gradeClass = 'grade' + grade.grade.replace('+', 'Plus').replace('-', 'Minus');
+              const gradeClass =
+                "grade" +
+                grade.grade.replace("+", "Plus").replace("-", "Minus");
               return (
                 <div key={index} className={styles.tableRow}>
                   <span className={styles.courseName}>{grade.course}</span>
@@ -58,6 +66,6 @@ export default function Grades() {
           </div>
         </div>
       </PageLayout>
-    </>
+    </AuthGuard>
   );
 }

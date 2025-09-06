@@ -1,11 +1,11 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import PageLayout from '@/components/PageLayout';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import styles from './profile.module.scss';
-
-const API_URL = "http://127.0.0.1:8000/api";
+"use client";
+import React, { useEffect, useState } from "react";
+import Sidebar from "@/components/Sidebar";
+import PageLayout from "@/components/PageLayout";
+import AuthGuard from "@/components/AuthGuard";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { mockAuthService, mockStorage } from "@/utils/mockAuth";
+import styles from "./profile.module.scss";
 
 interface UserProfile {
   first_name?: string;
@@ -26,47 +26,35 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    const token = localStorage.getItem('accessToken');
+    const loadProfile = async () => {
+      const userId = mockStorage.getCurrentUserId();
 
-    if (!userId || !token) {
-      setError("Debes iniciar sesión para ver tu perfil.");
-      setLoading(false);
-      return;
-    }
-
-    fetch(`${API_URL}/students/profile/${userId}/?token=${token}`)
-      .then(res => {
-        if (!res.ok) throw new Error("Error al cargar el perfil");
-        return res.json();
-      })
-      .then(data => {
-        setUser({
-          first_name: data.first_name,
-          last_name: data.last_name,
-          email: data.email,
-          birthday: data.birthday,
-          specialty: data.specialty,
-          aura: data.aura ?? "N/A",
-          ranking: data.ranking ?? "N/A",
-          courses_completed: data.courses_completed ?? 0,
-          hours_studied: data.hours_studied ?? 0,
-          member_since: data.member_since ?? "N/A",
-        });
-        setError(null);
-      })
-      .catch(err => {
-        console.error(err);
-        setError("Error al cargar el perfil. Por favor, inicia sesión nuevamente.");
-        setUser(null);
-      })
-      .finally(() => {
+      if (!userId || !mockStorage.isAuthenticated()) {
+        setError("Debes iniciar sesión para ver tu perfil.");
         setLoading(false);
-      });
+        return;
+      }
+
+      try {
+        const profileData = await mockAuthService.getUserProfile(userId);
+        setUser(profileData);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError(
+          "Error al cargar el perfil. Por favor, inicia sesión nuevamente."
+        );
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
   }, []);
 
   return (
-    <>
+    <AuthGuard>
       <Sidebar />
       <PageLayout title="Profile">
         <div className={styles.profileContainer}>
@@ -79,9 +67,9 @@ export default function Profile() {
           {error && (
             <div className={styles.errorState}>
               <p>{error}</p>
-              <button 
+              <button
                 className={styles.loginBtn}
-                onClick={() => window.location.href = '/login'}
+                onClick={() => (window.location.href = "/login")}
               >
                 Ir a Iniciar Sesión
               </button>
@@ -96,7 +84,9 @@ export default function Profile() {
                     <span>👤</span>
                   </div>
                   <div className={styles.profileInfo}>
-                    <h2>{user.first_name} {user.last_name}</h2>
+                    <h2>
+                      {user.first_name} {user.last_name}
+                    </h2>
                     <p>{user.email}</p>
                     <span className={styles.memberSince}>
                       Member since {user.member_since}
@@ -108,7 +98,9 @@ export default function Profile() {
 
                 <div className={styles.profileStats}>
                   <div className={styles.stat}>
-                    <span className={styles.statValue}>{user.courses_completed}</span>
+                    <span className={styles.statValue}>
+                      {user.courses_completed}
+                    </span>
                     <span className={styles.statLabel}>Cursos Completados</span>
                   </div>
 
@@ -123,7 +115,9 @@ export default function Profile() {
                   </div>
 
                   <div className={styles.stat}>
-                    <span className={styles.statValue}>{user.hours_studied}</span>
+                    <span className={styles.statValue}>
+                      {user.hours_studied}
+                    </span>
                     <span className={styles.statLabel}>Horas Estudiadas</span>
                   </div>
                 </div>
@@ -148,11 +142,11 @@ export default function Profile() {
                   <button
                     className={styles.logoutBtn}
                     onClick={() => {
-                      localStorage.removeItem('accessToken');
-                      localStorage.removeItem('refreshToken');
-                      localStorage.removeItem('userId');
-                      localStorage.removeItem('userRole');
-                      window.location.href = '/login';
+                      localStorage.removeItem("accessToken");
+                      localStorage.removeItem("refreshToken");
+                      localStorage.removeItem("userId");
+                      localStorage.removeItem("userRole");
+                      window.location.href = "/login";
                     }}
                   >
                     Logout
@@ -163,6 +157,6 @@ export default function Profile() {
           )}
         </div>
       </PageLayout>
-    </>
+    </AuthGuard>
   );
 }

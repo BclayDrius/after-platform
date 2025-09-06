@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
+import AuthGuard from "@/components/AuthGuard";
+import { mockAuthService } from "@/utils/mockAuth";
 import styles from "./ranking.module.scss";
 
 // Tipado del usuario en el ranking
@@ -33,19 +35,7 @@ export default function Ranking() {
 
   const fetchRanking = async (searchTerm: string) => {
     try {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(
-        `http://127.0.0.1:8000/api/ranking/?search=${searchTerm}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok) throw new Error("Error fetching ranking");
-
-      const data = await res.json();
+      const data = await mockAuthService.getRanking(searchTerm);
       setRanking(data.ranking);
       setUserRank(data.user_rank);
     } catch (err) {
@@ -73,7 +63,7 @@ export default function Ranking() {
   };
 
   return (
-    <>
+    <AuthGuard>
       <Sidebar />
       <PageLayout title="Ranking">
         <div className={styles.rankingContainer}>
@@ -89,7 +79,9 @@ export default function Ranking() {
                 </span>
                 <div className={styles.rankDisplay}>
                   <span className={styles.rankNumber}>#{userRank.rank}</span>
-                  <span className={styles.rankPoints}>{userRank.aura} aura</span>
+                  <span className={styles.rankPoints}>
+                    {userRank.aura} aura
+                  </span>
                 </div>
               </div>
             </div>
@@ -111,7 +103,9 @@ export default function Ranking() {
                 <div
                   key={user.id}
                   className={`${styles.leaderboardItem} ${
-                    userRank && user.id === userRank.id ? styles.currentUser : ""
+                    userRank && user.id === userRank.id
+                      ? styles.currentUser
+                      : ""
                   }`}
                   onClick={() => goToProfile(user.id)}
                   style={{ cursor: "pointer" }}
@@ -129,6 +123,6 @@ export default function Ranking() {
           </div>
         </div>
       </PageLayout>
-    </>
+    </AuthGuard>
   );
 }

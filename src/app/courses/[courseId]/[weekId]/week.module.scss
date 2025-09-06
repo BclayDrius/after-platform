@@ -1,0 +1,502 @@
+@import '../../../../styles/variables';
+
+.weekContainer {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.loading,
+.error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+
+    h2 {
+        color: $text-primary;
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
+
+    p {
+        color: $text-secondary;
+        font-size: 16px;
+        margin-bottom: 24px;
+    }
+}
+
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding: 16px 0;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+}
+
+.backButton {
+    background: $hover-bg;
+    border: 1px solid $border-primary;
+    color: $text-primary;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: $active-bg;
+        transform: translateY(-1px);
+    }
+}
+
+.weekProgress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: $text-secondary;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+.progressBar {
+    width: 200px;
+    height: 6px;
+    background: $border-primary;
+    border-radius: 3px;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+        width: 100%;
+    }
+}
+
+.progressFill {
+    height: 100%;
+    background: $gradient-primary;
+    transition: width 0.3s ease;
+}
+
+.weekHeader {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: center;
+    background: $card-bg;
+    border: 1px solid $border-primary;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px $shadow-light;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+}
+
+.weekInfo {
+    h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: $text-primary;
+        margin-bottom: 12px;
+        line-height: 1.2;
+
+        @media (max-width: 768px) {
+            font-size: 24px;
+        }
+    }
+}
+
+.weekDescription {
+    font-size: 16px;
+    color: $text-secondary;
+    line-height: 1.6;
+}
+
+.weekStats {
+    display: flex;
+    gap: 24px;
+
+    @media (max-width: 768px) {
+        justify-content: center;
+    }
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.statValue {
+    font-size: 24px;
+    font-weight: 800;
+    color: $accent-primary;
+    line-height: 1;
+}
+
+.statLabel {
+    font-size: 12px;
+    color: $text-secondary;
+    margin-top: 4px;
+}
+
+.objectives {
+    background: $card-bg;
+    border: 1px solid $border-primary;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 8px $shadow-light;
+
+    h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: $text-primary;
+        margin-bottom: 16px;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: $text-secondary;
+            line-height: 1.5;
+
+            &::before {
+                content: '🎯';
+                position: absolute;
+                left: 0;
+            }
+        }
+    }
+}
+
+.lessonsSection {
+    margin-bottom: 32px;
+
+    h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: $text-primary;
+        margin-bottom: 24px;
+    }
+}
+
+.lessonsList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lessonCard {
+    background: $card-bg;
+    border: 1px solid $border-primary;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px $shadow-light;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px $shadow-medium;
+    }
+
+    &.completed {
+        border-color: #22c55e;
+        background: rgba(34, 197, 94, 0.05);
+    }
+}
+
+.lessonHeader {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        text-align: center;
+    }
+}
+
+.lessonType {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $hover-bg;
+    border-radius: 8px;
+
+    @media (max-width: 768px) {
+        margin: 0 auto;
+    }
+}
+
+.lessonInfo {
+    h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 4px;
+    }
+
+    p {
+        font-size: 14px;
+        color: $text-secondary;
+        line-height: 1.4;
+    }
+}
+
+.lessonMeta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    @media (max-width: 768px) {
+        justify-content: center;
+    }
+}
+
+.duration {
+    font-size: 12px;
+    color: $text-muted;
+    background: $hover-bg;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.completeButton {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid $border-secondary;
+    background: $card-bg;
+    color: $text-muted;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+
+    &:hover {
+        border-color: $accent-primary;
+        color: $accent-primary;
+    }
+
+    &.completed {
+        background: #22c55e;
+        border-color: #22c55e;
+        color: white;
+    }
+}
+
+.resourcesSection {
+    margin-bottom: 32px;
+
+    h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: $text-primary;
+        margin-bottom: 24px;
+    }
+}
+
+.resourcesList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.resourceCard {
+    background: $card-bg;
+    border: 1px solid $border-primary;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px $shadow-light;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px $shadow-medium;
+    }
+}
+
+.resourceIcon {
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $hover-bg;
+    border-radius: 8px;
+}
+
+.resourceInfo {
+    flex: 1;
+
+    h4 {
+        font-size: 14px;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 2px;
+    }
+}
+
+.resourceType {
+    font-size: 12px;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.resourceButton {
+    background: $gradient-primary;
+    color: $primary-bg;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px $shadow-light;
+    }
+}
+
+.assignmentSection {
+    margin-bottom: 32px;
+
+    h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: $text-primary;
+        margin-bottom: 24px;
+    }
+}
+
+.assignmentCard {
+    background: $card-bg;
+    border: 1px solid $border-primary;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px $shadow-light;
+}
+
+.assignmentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: $text-primary;
+    }
+}
+
+.dueDate {
+    font-size: 12px;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.assignmentButton {
+    background: $gradient-primary;
+    color: $primary-bg;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 16px;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px $shadow-medium;
+    }
+}
+
+.weekNavigation {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+    }
+}
+
+.navButton {
+    background: $gradient-primary;
+    color: $primary-bg;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 200px;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px $shadow-medium;
+    }
+
+    &:disabled {
+        background: $hover-bg;
+        color: $text-muted;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+        max-width: none;
+    }
+}
