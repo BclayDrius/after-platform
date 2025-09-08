@@ -73,7 +73,7 @@ export default function Register() {
       navigateTo("/login?registered=true");
     } catch (err) {
       console.error(err);
-      setError(err.message || "Error al crear la cuenta");
+      setError((err as Error).message || "Error al crear la cuenta");
     } finally {
       setLoading(false);
     }

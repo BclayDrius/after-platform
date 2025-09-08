@@ -109,7 +109,15 @@ export default function Courses() {
         }
 
         // Forzar role a minúscula para consistencia
-        decodedUser.role = (decodedUser.role as string).toLowerCase();
+        const allowedRoles = ["student", "teacher", "admin"] as const;
+        const role = (decodedUser.role as string).toLowerCase();
+
+        if (allowedRoles.includes(role as any)) {
+          decodedUser.role = role as typeof allowedRoles[number];
+        } else {
+          // Asigna un valor por defecto o maneja el error
+          decodedUser.role = "student";
+        }
 
         setUser(decodedUser);
 
@@ -120,8 +128,12 @@ export default function Courses() {
             : await mockAuthService.getStudentCourses();
 
         setCourses(coursesData);
-      } catch (err) {
-        setError(err.message || "Error al cargar los cursos");
+      } catch (err: unknown) {
+        if (err && typeof err === "object" && "message" in err) {
+          setError((err as { message: string }).message);
+        } else {
+          setError("Error al cargar los cursos");
+        }
       } finally {
         setLoading(false);
       }

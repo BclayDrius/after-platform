@@ -23,7 +23,7 @@ export default function Login() {
     }
   }, [searchParams]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -39,7 +39,7 @@ export default function Login() {
       window.location.href = redirectUrl;
     } catch (err) {
       console.error(err);
-      setError(err.message || "Error al iniciar sesión");
+      setError((err as Error).message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }

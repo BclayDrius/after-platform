@@ -37,7 +37,7 @@ export default function Ranking() {
     try {
       const data = await mockAuthService.getRanking(searchTerm);
       setRanking(data.ranking);
-      setUserRank(data.user_rank);
+      setUserRank(data.user_rank || null);
     } catch (err) {
       console.error(err);
     }

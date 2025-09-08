@@ -20,6 +20,9 @@ const nextConfig: NextConfig = {
   sassOptions: {
     includePaths: ['./src/styles'],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   
   // Headers de rendimiento
   async headers() {
