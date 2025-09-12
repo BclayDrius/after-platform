@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Optimizaciones de rendimiento
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['@/components', '@/styles'],
   },
   

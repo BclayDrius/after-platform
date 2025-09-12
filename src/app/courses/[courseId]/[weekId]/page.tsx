@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
@@ -34,7 +34,7 @@ interface WeekData {
   };
 }
 
-export default function WeekPage() {
+function WeekPageContent() {
   const params = useParams();
   const router = useRouter();
   const courseId = params.courseId as string;
@@ -264,5 +264,12 @@ export default function WeekPage() {
         </div>
       </PageLayout>
     </AuthGuard>
+  );
+}
+export default function WeekPage() {
+  return (
+    <Suspense fallback={<div>Loading week content...</div>}>
+      <WeekPageContent />
+    </Suspense>
   );
 }

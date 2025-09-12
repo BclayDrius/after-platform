@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
@@ -29,7 +29,7 @@ interface CourseData {
   weeks: CourseWeek[];
 }
 
-export default function CoursePage() {
+function CoursePageContent() {
   const params = useParams();
   const courseId = params.courseId as string;
   const [course, setCourse] = useState<CourseData | null>(null);
@@ -213,5 +213,13 @@ export default function CoursePage() {
         </div>
       </PageLayout>
     </AuthGuard>
+  );
+}
+
+export default function CoursePage() {
+  return (
+    <Suspense fallback={<div>Loading course...</div>}>
+      <CoursePageContent />
+    </Suspense>
   );
 }

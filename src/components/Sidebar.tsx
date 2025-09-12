@@ -1,11 +1,11 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./Sidebar.module.scss";
 
-const Sidebar = () => {
+const SidebarContent = () => {
   const pathname = usePathname();
 
   const menuItems = [
@@ -87,4 +87,11 @@ const Sidebar = () => {
   );
 };
 
+const Sidebar = () => {
+  return (
+    <Suspense fallback={<div className={styles.sidebar}>Loading...</div>}>
+      <SidebarContent />
+    </Suspense>
+  );
+};
 export default Sidebar;
