@@ -4,17 +4,35 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
+// Debug logging
+console.log("Supabase Config:", {
+  url: supabaseUrl,
+  hasKey: !!supabaseAnonKey,
+  keyLength: supabaseAnonKey.length,
+});
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
+  console.error(
     "Supabase URL or Anon Key is missing. Please check your environment variables."
   );
+  console.error("URL:", supabaseUrl);
+  console.error("Key exists:", !!supabaseAnonKey);
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false,
+  },
+  global: {
+    fetch: (url, options = {}) => {
+      return fetch(url, {
+        ...options,
+        mode: "cors",
+        credentials: "omit",
+      });
+    },
   },
 });
 
