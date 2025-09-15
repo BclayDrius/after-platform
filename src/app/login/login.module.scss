@@ -240,3 +240,21 @@
         font-weight: 600;
     }
 }
+
+.devHelp er {
+    background-color: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: #1e40af;
+
+    p {
+        margin: 4px 0;
+    }
+
+    strong {
+        color: #1e3a8a;
+    }
+}

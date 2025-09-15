@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { mockAuthService, mockStorage } from "@/utils/mockAuth";
+import { authService, authStorage } from "@/services/authService";
 import styles from "./login.module.scss";
 
 function LoginForm() {
@@ -29,10 +29,10 @@ function LoginForm() {
     setError("");
 
     try {
-      const loginResponse = await mockAuthService.login(email, password);
+      const loginResponse = await authService.login(email, password);
 
       // Guardar tokens y datos del usuario
-      mockStorage.setAuthData(loginResponse);
+      authStorage.setAuthData(loginResponse);
 
       // Redirigir al dashboard o a la página solicitada
       const redirectUrl = searchParams.get("redirect") || "/";
@@ -64,6 +64,17 @@ function LoginForm() {
           {error && <p className={styles.errorMsg}>{error}</p>}
           {successMessage && (
             <p className={styles.successMsg}>{successMessage}</p>
+          )}
+
+          {/* Development helper */}
+          {process.env.NODE_ENV === "development" && (
+            <div className={styles.devHelper}>
+              <p>
+                <strong>Development Mode:</strong>
+              </p>
+              <p>Make sure you've set up Supabase first!</p>
+              <p>Check SUPABASE_SETUP.md for instructions.</p>
+            </div>
           )}
 
           <div className={styles.inputGroup}>

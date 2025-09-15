@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { mockStorage } from "@/utils/mockAuth";
+import { authStorage } from "@/services/authService";
 import LoadingSpinner from "./LoadingSpinner";
 
 interface AuthGuardProps {
@@ -41,8 +41,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
 
   useEffect(() => {
     const checkAuth = () => {
-      const isAuth = mockStorage.isAuthenticated();
-      const userId = mockStorage.getCurrentUserId();
+      const isAuth = authStorage.isAuthenticated();
+      const userId = authStorage.getCurrentUserId();
 
       if (!isAuth || !userId) {
         setIsAuthenticated(false);

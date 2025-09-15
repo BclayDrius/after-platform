@@ -116,10 +116,10 @@ const LandingPage = () => {
                 Confiado por profesionales de:
               </span>
               <div className={styles.trustLogos}>
-                <div className={styles.trustLogo}>Google</div>
-                <div className={styles.trustLogo}>Microsoft</div>
-                <div className={styles.trustLogo}>Amazon</div>
-                <div className={styles.trustLogo}>Meta</div>
+                <div className={styles.trustLogo}>MaxGrind</div>
+                <div className={styles.trustLogo}>Macerados Inka</div>
+                <div className={styles.trustLogo}>El Hada Artesana</div>
+                <div className={styles.trustLogo}>XXXXX</div>
               </div>
             </div>
           </div>
@@ -162,18 +162,18 @@ const LandingPage = () => {
 
               <div className={styles.mainDashboard}>
                 <div className={styles.dashboardHeader}>
-                  <h3>extraño a fara</h3>
+                  <h3>Anímate a aprender de una manera diferente</h3>
                   <div className={styles.dashboardStats}>
                     <div className={styles.stat}>
-                      <span className={styles.statNumber}>12</span>
+                      <span className={styles.statNumber}>XXXX</span>
                       <span className={styles.statLabel}>
-                        años tiene ketlin
+                        XXXXXX
                       </span>
                     </div>
                     <div className={styles.stat}>
-                      <span className={styles.statNumber}>100%</span>
+                      <span className={styles.statNumber}>XXX</span>
                       <span className={styles.statLabel}>
-                        zorrlaika la rusita auuu
+                        XXXXXXXXXXXXX
                       </span>
                     </div>
                   </div>

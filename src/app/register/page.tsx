@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useOptimizedNavigation } from "@/hooks/useOptimizedNavigation";
-import { mockAuthService } from "@/utils/mockAuth";
+import { authService } from "@/services/authService";
 import styles from "./register.module.scss";
 
 export default function Register() {
@@ -61,7 +61,7 @@ export default function Register() {
     }
 
     try {
-      await mockAuthService.register({
+      await authService.register({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
