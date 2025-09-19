@@ -4,8 +4,9 @@ import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
 import AuthGuard from "@/components/AuthGuard";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { mockAuthService, mockStorage } from "@/utils/mockAuth";
+import { authService, authStorage } from "@/services/authService";
 import styles from "./profile.module.scss";
+import { supabase } from "@/lib/supabase";
 
 interface UserProfile {
   first_name?: string;
@@ -27,20 +28,27 @@ export default function Profile() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const userId = mockStorage.getCurrentUserId();
-
-      if (!userId || !mockStorage.isAuthenticated()) {
-        setError("Debes iniciar sesión para ver tu perfil.");
-        setLoading(false);
-        return;
-      }
+      console.log("Loading profile...");
 
       try {
-        const profileData = await mockAuthService.getUserProfile(userId);
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+          console.log("No session found, redirecting...");
+          setError("Debes iniciar sesión para ver tu perfil.");
+          setLoading(false);
+          return;
+        }
+
+        console.log("Session found, fetching profile for:", session.user.id);
+        const profileData = await authService.getUserProfile(session.user.id);
+        console.log("Profile data received:", profileData);
         setUser(profileData);
         setError(null);
       } catch (err) {
-        console.error(err);
+        console.error("Profile loading error:", err);
         setError(
           "Error al cargar el perfil. Por favor, inicia sesión nuevamente."
         );
@@ -142,10 +150,7 @@ export default function Profile() {
                   <button
                     className={styles.logoutBtn}
                     onClick={() => {
-                      localStorage.removeItem("accessToken");
-                      localStorage.removeItem("refreshToken");
-                      localStorage.removeItem("userId");
-                      localStorage.removeItem("userRole");
+                      authStorage.clearAuthData();
                       window.location.href = "/login";
                     }}
                   >

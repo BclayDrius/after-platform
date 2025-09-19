@@ -9,22 +9,21 @@ const SidebarContent = () => {
   const pathname = usePathname();
 
   const menuItems = [
-    { name: "Inicio", icon: "🏠", href: "/" },
-    { name: "Mi ruta", icon: "🛤️", href: "/learning-path", badge: "NUEVO" },
+    { name: "Inicio", icon: "📋", href: "/dashboard", badge: "NUEVO" },
+    { name: "Cursos", icon: "📖", href: "/courses" },
+    { name: "Clasificación", icon: "🏆", href: "/ranking" },
+    { name: "Notas", icon: "📊", href: "/grades" },
+  ];
+
+  const sidebarItems = [
+    { name: "Perfil", icon: "👤", href: "/profile" },
+    { name: "Herramientas", icon: "🔧", href: "/tools" },
     {
       name: "Discord",
       icon: "🎮",
       href: "https://discord.gg/b8xxX6sy",
       target: "_blank",
     },
-  ];
-
-  const sidebarItems = [
-    { name: "Profile", icon: "👤", href: "/profile" },
-    { name: "Grades", icon: "📊", href: "/grades" },
-    { name: "Courses", icon: "📖", href: "/courses" },
-    { name: "Tools", icon: "🔧", href: "/tools" },
-    { name: "Ranking", icon: "🏆", href: "/ranking" },
   ];
 
   return (

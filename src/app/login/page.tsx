@@ -29,13 +29,11 @@ function LoginForm() {
     setError("");
 
     try {
-      const loginResponse = await authService.login(email, password);
+      await authService.login(email, password);
 
-      // Guardar tokens y datos del usuario
-      authStorage.setAuthData(loginResponse);
-
+      // Supabase maneja la sesión automáticamente
       // Redirigir al dashboard o a la página solicitada
-      const redirectUrl = searchParams.get("redirect") || "/";
+      const redirectUrl = searchParams.get("redirect") || "/dashboard";
       window.location.href = redirectUrl;
     } catch (err) {
       console.error(err);
@@ -67,15 +65,6 @@ function LoginForm() {
           )}
 
           {/* Development helper */}
-          {process.env.NODE_ENV === "development" && (
-            <div className={styles.devHelper}>
-              <p>
-                <strong>Development Mode:</strong>
-              </p>
-              <p>Make sure you've set up Supabase first!</p>
-              <p>Check SUPABASE_SETUP.md for instructions.</p>
-            </div>
-          )}
 
           <div className={styles.inputGroup}>
             <label htmlFor="email">Email</label>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
 import AuthGuard from "@/components/AuthGuard";
-import { mockAuthService, mockStorage } from "@/utils/mockAuth";
+import { authService, authStorage } from "@/services/authService";
 import styles from "./courses.module.scss";
 
 // -----------------------
@@ -113,7 +113,7 @@ export default function Courses() {
         const role = (decodedUser.role as string).toLowerCase();
 
         if (allowedRoles.includes(role as any)) {
-          decodedUser.role = role as typeof allowedRoles[number];
+          decodedUser.role = role as (typeof allowedRoles)[number];
         } else {
           // Asigna un valor por defecto o maneja el error
           decodedUser.role = "student";
@@ -121,11 +121,11 @@ export default function Courses() {
 
         setUser(decodedUser);
 
-        // Obtener cursos según el rol usando mock
+        // Obtener cursos según el rol
         const coursesData =
           decodedUser.role === "teacher"
-            ? await mockAuthService.getTeacherCourses()
-            : await mockAuthService.getStudentCourses();
+            ? await authService.getTeacherCourses()
+            : await authService.getStudentCourses();
 
         setCourses(coursesData);
       } catch (err: unknown) {

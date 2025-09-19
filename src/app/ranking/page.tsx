@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
 import AuthGuard from "@/components/AuthGuard";
-import { mockAuthService } from "@/utils/mockAuth";
+import { authService } from "@/services/authService";
 import styles from "./ranking.module.scss";
 
 // Tipado del usuario en el ranking
@@ -35,7 +35,7 @@ export default function Ranking() {
 
   const fetchRanking = async (searchTerm: string) => {
     try {
-      const data = await mockAuthService.getRanking(searchTerm);
+      const data = await authService.getRanking(searchTerm);
       setRanking(data.ranking);
       setUserRank(data.user_rank || null);
     } catch (err) {

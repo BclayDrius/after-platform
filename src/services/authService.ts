@@ -10,8 +10,8 @@ export interface LoginResponse {
 }
 
 export interface RegisterData {
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
   password: string;
   specialty: string;
@@ -36,53 +36,13 @@ class AuthService {
         throw new Error("Login failed - no user data returned");
       }
 
-      // Get user profile from our custom users table
-      const { data: profile, error: profileError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", authData.user.id)
-        .single();
-
-      if (profileError) {
-        // If no profile exists, create a basic one
-        const { data: newProfile, error: createError } = await supabase
-          .from("users")
-          .insert({
-            id: authData.user.id,
-            email: authData.user.email || email,
-            first_name: "User",
-            last_name: "Name",
-            role: "student",
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.warn("Could not create user profile:", createError);
-          // Continue with basic user data
-        } else {
-          return {
-            access: authData.session.access_token,
-            refresh: authData.session.refresh_token || "",
-            user: newProfile,
-            id: authData.user.id,
-            role: newProfile.role || "student",
-          };
-        }
-      }
-
+      // Supabase handles the session automatically, no need for localStorage
       return {
         access: authData.session.access_token,
         refresh: authData.session.refresh_token || "",
-        user: profile || {
-          id: authData.user.id,
-          email: authData.user.email,
-          first_name: "User",
-          last_name: "Name",
-          role: "student",
-        },
+        user: authData.user,
         id: authData.user.id,
-        role: profile?.role || "student",
+        role: "student", // We'll get this from the profile
       };
     } catch (error) {
       console.error("Login error:", error);
@@ -95,10 +55,18 @@ class AuthService {
     try {
       console.log("Starting registration for:", userData.email);
 
-      // Create auth user
+      // Create auth user with metadata
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
+        options: {
+          data: {
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            specialty: userData.specialty,
+            role: "student",
+          },
+        },
       });
 
       console.log("Supabase auth response:", { authData, authError });
@@ -114,22 +82,10 @@ class AuthService {
 
       console.log("User created successfully:", authData.user.id);
 
-      // Create user profile
-      const { error: profileError } = await supabase.from("users").insert({
-        id: authData.user.id,
-        email: userData.email,
-        first_name: userData.firstName,
-        last_name: userData.lastName,
-        specialty: userData.specialty,
-        role: "student",
-      });
-
-      if (profileError) {
-        console.warn("Could not create user profile:", profileError);
-        // Continue anyway - profile can be created later
-      } else {
-        console.log("User profile created successfully");
-      }
+      // Skip user profile creation for now - let the trigger handle it
+      console.log(
+        "User created successfully, profile will be created by trigger"
+      );
 
       return {
         success: true,
@@ -179,60 +135,153 @@ class AuthService {
 
   // Get user profile
   async getUserProfile(userId: string) {
-    const { data, error } = await supabase
+    console.log("Getting profile for user:", userId);
+
+    // First try to get from our custom users table
+    const { data: profileData, error: profileError } = await supabase
       .from("users")
       .select("*")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      throw new Error(error.message);
+    console.log("Profile from users table:", { profileData, profileError });
+
+    if (profileData) {
+      // User exists in our custom table
+      return {
+        first_name: profileData.first_name,
+        last_name: profileData.last_name,
+        email: profileData.email,
+        specialty: profileData.specialty || "No definida",
+        aura: profileData.aura || 0,
+        ranking: 1,
+        courses_completed: profileData.courses_completed || 0,
+        hours_studied: profileData.hours_studied || 0,
+        member_since:
+          profileData.created_at?.split("T")[0] ||
+          new Date().toISOString().split("T")[0],
+      };
     }
 
+    // Fallback: get from session metadata
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      console.log("User data from session:", session.user);
+      const user = session.user;
+
+      return {
+        first_name: user.user_metadata?.first_name || "Usuario",
+        last_name: user.user_metadata?.last_name || "Nuevo",
+        email: user.email || "No email",
+        specialty: user.user_metadata?.specialty || "No definida",
+        aura: user.user_metadata?.aura || 0,
+        ranking: 1,
+        courses_completed: user.user_metadata?.courses_completed || 0,
+        hours_studied: user.user_metadata?.hours_studied || 0,
+        member_since:
+          user.created_at?.split("T")[0] ||
+          new Date().toISOString().split("T")[0],
+      };
+    }
+
+    // Last fallback: default profile
+    console.log("No session found, returning default profile");
     return {
-      first_name: data.first_name,
-      last_name: data.last_name,
-      email: data.email,
-      specialty: data.specialty,
-      aura: data.aura || 0,
-      ranking: 1, // TODO: Calculate from ranking
-      courses_completed: data.courses_completed || 0,
-      hours_studied: data.hours_studied || 0,
-      member_since:
-        data.created_at?.split("T")[0] ||
-        new Date().toISOString().split("T")[0],
+      first_name: "Usuario",
+      last_name: "Nuevo",
+      email: "usuario@example.com",
+      specialty: "No definida",
+      aura: 0,
+      ranking: 1,
+      courses_completed: 0,
+      hours_studied: 0,
+      member_since: new Date().toISOString().split("T")[0],
     };
+  }
+
+  // Contact form submission (placeholder)
+  async submitContactForm(formData: any) {
+    // TODO: Implement contact form submission with Supabase
+    console.log("Contact form submitted:", formData);
+    return { success: true, message: "Formulario enviado exitosamente" };
+  }
+
+  // Get ranking (placeholder)
+  async getRanking(search: string = "") {
+    // TODO: Implement ranking system with Supabase
+    return {
+      ranking: [],
+      user_rank: null,
+    };
+  }
+
+  // Get student courses (placeholder)
+  async getStudentCourses() {
+    // TODO: Implement course fetching with Supabase
+    return [
+      {
+        id: 1,
+        title: "JavaScript Fundamentals",
+        duration: 8,
+        level: "Principiante",
+        status: "En Progreso",
+        progress: 65,
+        description: "Aprende los fundamentos de JavaScript desde cero",
+      },
+    ];
+  }
+
+  // Get teacher courses (placeholder)
+  async getTeacherCourses() {
+    // TODO: Implement teacher course fetching with Supabase
+    return [
+      {
+        id: 1,
+        title: "JavaScript Fundamentals",
+        duration: 8,
+        level: "Principiante",
+        status: "En Progreso",
+        progress: 65,
+        description: "Aprende los fundamentos de JavaScript desde cero",
+        students: [
+          {
+            student_id: "1",
+            student_name: "Ana García",
+            completed: false,
+            merit_points: 85,
+          },
+        ],
+      },
+    ];
   }
 }
 
-// Storage utilities (keeping the same interface as mockAuth)
+// Storage utilities using Supabase sessions
 export const authStorage = {
   setAuthData(loginResponse: LoginResponse) {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("accessToken", loginResponse.access);
-      localStorage.setItem("refreshToken", loginResponse.refresh);
-      localStorage.setItem("userId", loginResponse.id);
-      localStorage.setItem("userRole", loginResponse.role);
-    }
+    // Supabase handles session storage automatically
+    console.log("Auth data set via Supabase session");
   },
 
-  clearAuthData() {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userRole");
-    }
+  async clearAuthData() {
+    await supabase.auth.signOut();
   },
 
-  isAuthenticated(): boolean {
-    if (typeof window === "undefined") return false;
-    return !!localStorage.getItem("accessToken");
+  async isAuthenticated(): Promise<boolean> {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return !!session;
   },
 
-  getCurrentUserId(): string | null {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("userId");
+  async getCurrentUserId(): Promise<string | null> {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return session?.user.id || null;
   },
 };
 

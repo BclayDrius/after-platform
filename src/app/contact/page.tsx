@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useOptimizedNavigation } from "@/hooks/useOptimizedNavigation";
-import { mockAuthService } from "@/utils/mockAuth";
+import { authService } from "@/services/authService";
 import styles from "./contact.module.scss";
 
 export default function Contact() {
@@ -57,7 +57,8 @@ export default function Contact() {
     setError("");
 
     try {
-      await mockAuthService.submitContactForm(formData);
+      // TODO: Implement submitContactForm in authService
+      console.log("Contact form submitted:", formData);
       setIsSubmitted(true);
     } catch (err) {
       setError("Error al enviar el formulario. Por favor, inténtalo de nuevo.");

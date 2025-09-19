@@ -9,8 +9,8 @@ import styles from "./register.module.scss";
 export default function Register() {
   const { navigateTo } = useOptimizedNavigation();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -62,8 +62,8 @@ export default function Register() {
 
     try {
       await authService.register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
         email: formData.email,
         password: formData.password,
         specialty: formData.specialty,
@@ -99,27 +99,27 @@ export default function Register() {
 
           <div className={styles.nameGroup}>
             <div className={styles.inputGroup}>
-              <label htmlFor="firstName">Nombre</label>
+              <label htmlFor="first_name">Nombre</label>
               <input
                 type="text"
-                id="firstName"
-                name="firstName"
+                id="first_name"
+                name="first_name"
                 placeholder="Tu nombre"
                 required
-                value={formData.firstName}
+                value={formData.first_name}
                 onChange={handleChange}
               />
             </div>
 
             <div className={styles.inputGroup}>
-              <label htmlFor="lastName">Apellido</label>
+              <label htmlFor="last_name">Apellido</label>
               <input
                 type="text"
-                id="lastName"
-                name="lastName"
+                id="last_name"
+                name="last_name"
                 placeholder="Tu apellido"
                 required
-                value={formData.lastName}
+                value={formData.last_name}
                 onChange={handleChange}
               />
             </div>
