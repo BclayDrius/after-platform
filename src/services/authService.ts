@@ -137,7 +137,7 @@ class AuthService {
   async getUserProfile(userId: string) {
     console.log("Getting profile for user:", userId);
 
-    // First try to get from our custom users table
+    // Get from public.users table
     const { data: profileData, error: profileError } = await supabase
       .from("users")
       .select("*")
@@ -147,14 +147,19 @@ class AuthService {
     console.log("Profile from users table:", { profileData, profileError });
 
     if (profileData) {
-      // User exists in our custom table
+      // Get email from auth.users
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const email = session?.user?.email || "No email";
+
       return {
-        first_name: profileData.first_name,
-        last_name: profileData.last_name,
-        email: profileData.email,
+        first_name: profileData.first_name || "Usuario",
+        last_name: profileData.last_name || "Nuevo",
+        email: email,
         specialty: profileData.specialty || "No definida",
         aura: profileData.aura || 0,
-        ranking: 1,
+        ranking: profileData.ranking || 1,
         courses_completed: profileData.courses_completed || 0,
         hours_studied: profileData.hours_studied || 0,
         member_since:
@@ -163,32 +168,8 @@ class AuthService {
       };
     }
 
-    // Fallback: get from session metadata
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (session?.user) {
-      console.log("User data from session:", session.user);
-      const user = session.user;
-
-      return {
-        first_name: user.user_metadata?.first_name || "Usuario",
-        last_name: user.user_metadata?.last_name || "Nuevo",
-        email: user.email || "No email",
-        specialty: user.user_metadata?.specialty || "No definida",
-        aura: user.user_metadata?.aura || 0,
-        ranking: 1,
-        courses_completed: user.user_metadata?.courses_completed || 0,
-        hours_studied: user.user_metadata?.hours_studied || 0,
-        member_since:
-          user.created_at?.split("T")[0] ||
-          new Date().toISOString().split("T")[0],
-      };
-    }
-
-    // Last fallback: default profile
-    console.log("No session found, returning default profile");
+    // Fallback: default profile
+    console.log("No profile found in users table, returning default");
     return {
       first_name: "Usuario",
       last_name: "Nuevo",
