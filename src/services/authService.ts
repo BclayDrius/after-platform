@@ -18,7 +18,7 @@ export interface RegisterData {
 }
 
 class AuthService {
-  // Login with email and password
+  // Login with email and password Xd
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
       // Sign in with Supabase Auth
