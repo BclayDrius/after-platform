@@ -4,9 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useOptimizedNavigation } from "@/hooks/useOptimizedNavigation";
 import { authService } from "@/services/authService";
+import GuestGuard from "@/components/GuestGuard";
 import styles from "./register.module.scss";
 
-export default function Register() {
+function RegisterForm() {
   const { navigateTo } = useOptimizedNavigation();
   const [formData, setFormData] = useState({
     first_name: "",
@@ -220,5 +221,12 @@ export default function Register() {
         </div>
       </div>
     </div>
+  );
+}
+export default function Register() {
+  return (
+    <GuestGuard>
+      <RegisterForm />
+    </GuestGuard>
   );
 }

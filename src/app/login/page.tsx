@@ -4,6 +4,8 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { authService, authStorage } from "@/services/authService";
+import { supabase } from "@/lib/supabase";
+import GuestGuard from "@/components/GuestGuard";
 import styles from "./login.module.scss";
 
 function LoginForm() {
@@ -29,6 +31,10 @@ function LoginForm() {
     setError("");
 
     try {
+      // Primero hacer logout de cualquier sesión existente
+      await supabase.auth.signOut();
+
+      // Luego hacer login con las nuevas credenciales
       await authService.login(email, password);
 
       // Supabase maneja la sesión automáticamente
@@ -142,8 +148,10 @@ function LoginForm() {
 
 export default function Login() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <LoginForm />
-    </Suspense>
+    <GuestGuard>
+      <Suspense fallback={<div>Loading...</div>}>
+        <LoginForm />
+      </Suspense>
+    </GuestGuard>
   );
 }
