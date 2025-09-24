@@ -79,7 +79,7 @@ const SidebarContent = () => {
       <div className={styles.footer}>
         <div className={styles.referralSection}>
           <span className={styles.referralIcon}>🎁</span>
-          <span className={styles.referralText}>¡Refiere y gana!</span>
+          <span className={styles.referralText}>Referir a un amigo</span>
         </div>
       </div>
     </div>
