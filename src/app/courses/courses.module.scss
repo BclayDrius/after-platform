@@ -140,3 +140,91 @@
         background: $gradient-secondary;
     }
 }
+
+.v iewToggle {
+    display: flex;
+    gap: 8px;
+    background: $hover-bg;
+    border-radius: 8px;
+    padding: 4px;
+
+    button {
+        background: none;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-secondary;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.active {
+            background: $card-bg;
+            color: $text-primary;
+            box-shadow: 0 2px 4px $shadow-light;
+        }
+
+        &:hover:not(.active) {
+            color: $text-primary;
+        }
+    }
+}
+
+.emptyState {
+    text-align: center;
+    padding: 60px 20px;
+    color: $text-secondary;
+
+    p {
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+}
+
+.browseBtn {
+    background: $gradient-primary;
+    color: $primary-bg;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px $shadow-medium;
+    }
+}
+
+.courseDescription {
+    color: $text-secondary;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+.instructor {
+    color: $text-muted;
+    font-size: 12px;
+    margin-bottom: 16px;
+}
+
+.enrollBtn {
+    width: 100%;
+    background: $gradient-secondary;
+    color: $primary-bg;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px $shadow-light;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px $shadow-medium;
+    }
+}

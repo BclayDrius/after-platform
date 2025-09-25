@@ -199,44 +199,110 @@ class AuthService {
     };
   }
 
-  // Get student courses (placeholder)
+  // Get student courses
   async getStudentCourses() {
-    // TODO: Implement course fetching with Supabase
-    return [
-      {
-        id: 1,
-        title: "JavaScript Fundamentals",
-        duration: 8,
-        level: "Principiante",
-        status: "En Progreso",
-        progress: 65,
-        description: "Aprende los fundamentos de JavaScript desde cero",
-      },
-    ];
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) throw new Error("No authenticated user");
+
+    const { data, error } = await supabase
+      .from("user_courses")
+      .select(
+        `
+        *,
+        courses (
+          id,
+          title,
+          description,
+          instructor_name,
+          level,
+          duration_weeks,
+          total_lessons
+        )
+      `
+      )
+      .eq("user_id", session.user.id);
+
+    if (error) {
+      console.error("Error fetching student courses:", error);
+      return [];
+    }
+
+    return data.map((enrollment) => ({
+      id: enrollment.courses.id,
+      title: enrollment.courses.title,
+      duration: enrollment.courses.duration_weeks,
+      level: enrollment.courses.level,
+      status:
+        enrollment.status === "completed"
+          ? "Completado"
+          : enrollment.status === "paused"
+          ? "Pausado"
+          : "En Progreso",
+      progress: enrollment.progress_percentage,
+      description: enrollment.courses.description,
+      instructor: enrollment.courses.instructor_name,
+    }));
   }
 
-  // Get teacher courses (placeholder)
+  // Get all available courses
+  async getAllCourses() {
+    const { data, error } = await supabase
+      .from("courses")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching courses:", error);
+      return [];
+    }
+
+    return data.map((course) => ({
+      id: course.id,
+      title: course.title,
+      duration: course.duration_weeks,
+      level: course.level,
+      status: "Disponible",
+      progress: 0,
+      description: course.description,
+      instructor: course.instructor_name,
+      total_lessons: course.total_lessons,
+    }));
+  }
+
+  // Enroll in a course
+  async enrollInCourse(courseId: string) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) throw new Error("No authenticated user");
+
+    const { data, error } = await supabase
+      .from("user_courses")
+      .insert({
+        user_id: session.user.id,
+        course_id: courseId,
+        status: "active",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === "23505") {
+        // Unique constraint violation
+        throw new Error("Ya estás inscrito en este curso");
+      }
+      throw new Error("Error al inscribirse en el curso");
+    }
+
+    return data;
+  }
+
+  // Get teacher courses (placeholder for now)
   async getTeacherCourses() {
-    // TODO: Implement teacher course fetching with Supabase
-    return [
-      {
-        id: 1,
-        title: "JavaScript Fundamentals",
-        duration: 8,
-        level: "Principiante",
-        status: "En Progreso",
-        progress: 65,
-        description: "Aprende los fundamentos de JavaScript desde cero",
-        students: [
-          {
-            student_id: "1",
-            student_name: "Ana García",
-            completed: false,
-            merit_points: 85,
-          },
-        ],
-      },
-    ];
+    // For now, return all courses as if teacher manages them
+    return this.getAllCourses();
   }
 }
 

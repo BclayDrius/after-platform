@@ -1,14 +1,30 @@
 "use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 import { authStorage } from "@/services/authService";
 import styles from "./PageLayout.module.scss";
 
 interface PageLayoutProps {
   title: string;
   children: React.ReactNode;
+  showBackButton?: boolean;
 }
 
-const PageLayout = ({ title, children }: PageLayoutProps) => {
+const PageLayout = ({
+  title,
+  children,
+  showBackButton = true,
+}: PageLayoutProps) => {
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
   const handleLogout = async () => {
     // Clear auth data via Supabase
     await authStorage.clearAuthData();
@@ -20,18 +36,24 @@ const PageLayout = ({ title, children }: PageLayoutProps) => {
     <div className={styles.pageLayout}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <button className={styles.menuToggle}>
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+          {showBackButton && (
+            <button
+              className={styles.menuToggle}
+              onClick={handleBack}
+              title="Volver"
             >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+          )}
           <h1 className={styles.title}>{title}</h1>
         </div>
         <div className={styles.headerRight}>
