@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { authStorage } from "@/services/authService";
+import { supabase } from "@/lib/supabase";
 import styles from "./PageLayout.module.scss";
 
 interface PageLayoutProps {
@@ -26,10 +26,16 @@ const PageLayout = ({
   };
 
   const handleLogout = async () => {
-    // Clear auth data via Supabase
-    await authStorage.clearAuthData();
-    // Redirect to login
-    window.location.href = "/login";
+    try {
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      // Redirect to login
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Error logging out:", error);
+      // Force redirect even if logout fails
+      window.location.href = "/login";
+    }
   };
 
   return (

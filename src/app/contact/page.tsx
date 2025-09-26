@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useOptimizedNavigation } from "@/hooks/useOptimizedNavigation";
-import { authService } from "@/services/authService";
+// Contact form - no auth service needed
 import styles from "./contact.module.scss";
 
 export default function Contact() {
@@ -57,7 +57,7 @@ export default function Contact() {
     setError("");
 
     try {
-      // TODO: Implement submitContactForm in authService
+      // TODO: Implement contact form submission
       console.log("Contact form submitted:", formData);
       setIsSubmitted(true);
     } catch (err) {

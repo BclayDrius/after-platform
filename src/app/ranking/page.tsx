@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
 import AuthGuard from "@/components/AuthGuard";
-import { authService } from "@/services/authService";
+import { supabase } from "@/lib/supabase";
 import styles from "./ranking.module.scss";
 
 // Tipado del usuario en el ranking
@@ -35,11 +35,36 @@ export default function Ranking() {
 
   const fetchRanking = async (searchTerm: string) => {
     try {
-      const data = await authService.getRanking(searchTerm);
-      setRanking(data.ranking);
-      setUserRank(data.user_rank || null);
+      // Get ranking from user_rankings view
+      let query = supabase.from("user_rankings").select("*").order("rank");
+
+      if (searchTerm) {
+        query = query.or(
+          `first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`
+        );
+      }
+
+      const { data: rankingData, error } = await query;
+
+      if (error) throw error;
+
+      setRanking(rankingData || []);
+
+      // Get current user's rank
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        const currentUserRank = rankingData?.find(
+          (user) => user.id === session.user.id
+        );
+        setUserRank(currentUserRank || null);
+      }
     } catch (err) {
       console.error(err);
+      // Fallback to empty data
+      setRanking([]);
+      setUserRank(null);
     }
   };
 

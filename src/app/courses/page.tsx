@@ -4,11 +4,10 @@ import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
 import AuthGuard from "@/components/AuthGuard";
-import { authService } from "@/services/authService";
-import { supabase } from "@/lib/supabase";
+import { roleService, Course, User } from "@/services/roleService";
 import styles from "./courses.module.scss";
 
-interface Course {
+interface CourseDisplay {
   id: string;
   title: string;
   duration: number;
@@ -21,22 +20,58 @@ interface Course {
 }
 
 export default function Courses() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<CourseDisplay[]>([]);
+  const [allCourses, setAllCourses] = useState<CourseDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<"enrolled" | "available">("enrolled");
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const loadCourses = async () => {
+    const loadData = async () => {
       try {
-        // Load enrolled courses
-        const enrolledCourses = await authService.getStudentCourses();
-        setCourses(enrolledCourses);
+        // Get current user
+        const user = await roleService.getCurrentUser();
+        setCurrentUser(user);
+
+        if (!user) {
+          setError("Usuario no autenticado");
+          return;
+        }
+
+        // Load enrolled courses (only for students)
+        if (user.role === "student") {
+          const enrolledCourses = await roleService.getStudentCourses();
+          setCourses(
+            enrolledCourses.map((course) => ({
+              id: course.id,
+              title: course.title,
+              duration: course.duration_weeks,
+              level: course.level,
+              status: "En Progreso",
+              progress: 0, // We'll get this from user_courses later
+              description: course.description || "",
+              instructor: "Instructor", // We'll get this from course_instructors later
+              total_lessons: course.total_lessons,
+            }))
+          );
+        }
 
         // Load all available courses
-        const availableCourses = await authService.getAllCourses();
-        setAllCourses(availableCourses);
+        const availableCourses = await roleService.getCourses();
+        setAllCourses(
+          availableCourses.map((course) => ({
+            id: course.id,
+            title: course.title,
+            duration: course.duration_weeks,
+            level: course.level,
+            status: "Disponible",
+            progress: 0,
+            description: course.description || "",
+            instructor: "Instructor", // We'll get this from course_instructors later
+            total_lessons: course.total_lessons,
+          }))
+        );
       } catch (err: unknown) {
         console.error("Error loading courses:", err);
         setError("Error al cargar los cursos");
@@ -45,16 +80,19 @@ export default function Courses() {
       }
     };
 
-    loadCourses();
+    loadData();
   }, []);
 
   const handleEnroll = async (courseId: string) => {
     try {
-      await authService.enrollInCourse(courseId);
-      // Reload courses after enrollment
-      const enrolledCourses = await authService.getStudentCourses();
-      setCourses(enrolledCourses);
-      alert("¡Te has inscrito exitosamente en el curso!");
+      if (!currentUser) {
+        alert("Debes estar autenticado para inscribirte");
+        return;
+      }
+
+      // For now, we'll need an admin or teacher to enroll students
+      // This is a limitation of the current role system
+      alert("Contacta a un administrador para inscribirte en este curso");
     } catch (err: any) {
       alert(err.message || "Error al inscribirse en el curso");
     }

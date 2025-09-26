@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useOptimizedNavigation } from "@/hooks/useOptimizedNavigation";
-import { authService } from "@/services/authService";
+import { supabase } from "@/lib/supabase";
 import GuestGuard from "@/components/GuestGuard";
 import styles from "./register.module.scss";
 
@@ -62,19 +62,41 @@ function RegisterForm() {
     }
 
     try {
-      await authService.register({
-        first_name: formData.first_name,
-        last_name: formData.last_name,
+      // Create auth user with metadata
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        specialty: formData.specialty,
+        options: {
+          data: {
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            specialty: formData.specialty,
+            role: "student",
+          },
+        },
       });
+
+      if (authError) {
+        throw new Error(authError.message);
+      }
+
+      if (!authData.user) {
+        throw new Error("Registration failed - no user created");
+      }
 
       // Registro exitoso, redirigir al login
       navigateTo("/login?registered=true");
     } catch (err) {
       console.error(err);
-      setError((err as Error).message || "Error al crear la cuenta");
+      if (err instanceof Error) {
+        if (err.message.includes("fetch")) {
+          setError("Error de conexión. Verifica tu configuración de Supabase.");
+        } else {
+          setError(err.message || "Error al crear la cuenta");
+        }
+      } else {
+        setError("Error desconocido durante el registro");
+      }
     } finally {
       setLoading(false);
     }

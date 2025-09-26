@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { authStorage } from "@/services/authService";
 import LoadingSpinner from "./LoadingSpinner";
 import { supabase } from "@/lib/supabase";
 interface AuthGuardProps {

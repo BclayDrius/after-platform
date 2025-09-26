@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { authService, authStorage } from "@/services/authService";
+import { roleService } from "@/services/roleService";
 import { supabase } from "@/lib/supabase";
 import GuestGuard from "@/components/GuestGuard";
 import styles from "./login.module.scss";
@@ -34,8 +34,19 @@ function LoginForm() {
       // Primero hacer logout de cualquier sesión existente
       await supabase.auth.signOut();
 
-      // Luego hacer login con las nuevas credenciales
-      await authService.login(email, password);
+      // Hacer login con Supabase directamente
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!data.user || !data.session) {
+        throw new Error("Login failed - no user data returned");
+      }
 
       // Supabase maneja la sesión automáticamente
       // Redirigir al dashboard o a la página solicitada

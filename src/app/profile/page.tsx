@@ -4,7 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import PageLayout from "@/components/PageLayout";
 import AuthGuard from "@/components/AuthGuard";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { authService, authStorage } from "@/services/authService";
+import { roleService } from "@/services/roleService";
 import styles from "./profile.module.scss";
 import { supabase } from "@/lib/supabase";
 
@@ -43,9 +43,24 @@ export default function Profile() {
         }
 
         console.log("Session found, fetching profile for:", session.user.id);
-        const profileData = await authService.getUserProfile(session.user.id);
+        const profileData = await roleService.getCurrentUser();
         console.log("Profile data received:", profileData);
-        setUser(profileData);
+
+        if (profileData) {
+          setUser({
+            first_name: profileData.first_name,
+            last_name: profileData.last_name,
+            email: profileData.email,
+            specialty: profileData.specialty,
+            aura: profileData.aura,
+            ranking: 1, // We'll calculate this later
+            courses_completed: profileData.courses_completed,
+            hours_studied: profileData.hours_studied,
+            member_since:
+              profileData.created_at?.split("T")[0] ||
+              new Date().toISOString().split("T")[0],
+          });
+        }
         setError(null);
       } catch (err) {
         console.error("Profile loading error:", err);
@@ -149,8 +164,8 @@ export default function Profile() {
                 <div className={styles.settingItem}>
                   <button
                     className={styles.logoutBtn}
-                    onClick={() => {
-                      authStorage.clearAuthData();
+                    onClick={async () => {
+                      await supabase.auth.signOut();
                       window.location.href = "/login";
                     }}
                   >
