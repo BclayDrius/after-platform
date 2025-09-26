@@ -4,7 +4,7 @@
 
 -- ============================================================================
 -- PASO 1: CREAR FUNCIÓN is_admin CORRECTA
--- ============================================================================
+-- ===========================================================================
 
 -- Crear función que acepta UUID (recomendado por Supabase)
 CREATE OR REPLACE FUNCTION public.is_admin(user_id uuid)
