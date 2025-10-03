@@ -243,12 +243,8 @@ export default function Courses() {
                     <button
                       className={styles.continueBtn}
                       onClick={() => {
-                        if (currentUser?.role === "student") {
-                          window.location.href = `/courses/${course.id}`;
-                        } else {
-                          // Admin/Teacher van al gestor de cursos
-                          window.location.href = `/dashboard`;
-                        }
+                        // Todos los roles van a la página individual del curso
+                        window.location.href = `/courses/${course.id}`;
                       }}
                     >
                       {currentUser?.role === "student"

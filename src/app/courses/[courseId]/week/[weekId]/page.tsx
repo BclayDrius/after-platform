@@ -1,0 +1,1205 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Sidebar from "@/components/Sidebar";
+import PageLayout from "@/components/PageLayout";
+import AuthGuard from "@/components/AuthGuard";
+import {
+  roleService,
+  Course,
+  CourseWeek,
+  Lesson,
+  User,
+} from "@/services/roleService";
+
+export default function WeekPage() {
+  const params = useParams();
+  const router = useRouter();
+  const courseId = params.courseId as string;
+  const weekId = params.weekId as string;
+
+  const [course, setCourse] = useState<Course | null>(null);
+  const [week, setWeek] = useState<CourseWeek | null>(null);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "lessons" | "assignments"
+  >("overview");
+  const [showEditWeek, setShowEditWeek] = useState(false);
+  const [showCreateLesson, setShowCreateLesson] = useState(false);
+  const [showCreateAssignment, setShowCreateAssignment] = useState(false);
+
+  const canEdit = () => {
+    if (!currentUser || !course) return false;
+    return (
+      currentUser.role === "admin" ||
+      (currentUser.role === "teacher" && course.creator_id === currentUser.id)
+    );
+  };
+
+  useEffect(() => {
+    loadWeekData();
+  }, [weekId]);
+
+  const loadWeekData = async () => {
+    try {
+      setLoading(true);
+
+      const user = await roleService.getCurrentUser();
+      setCurrentUser(user);
+
+      if (!user) {
+        setError("Usuario no autenticado");
+        return;
+      }
+
+      // Cargar datos del curso y semana
+      const [courseData, weekData, lessonsData, assignmentsData] =
+        await Promise.all([
+          roleService
+            .getCourses()
+            .then((courses) => courses.find((c) => c.id === courseId)),
+          roleService
+            .getCourseWeeks(courseId)
+            .then((weeks) => weeks.find((w) => w.id === weekId)),
+          roleService.getWeekLessons(weekId),
+          roleService.getWeekAssignments(weekId),
+        ]);
+
+      if (!courseData) {
+        setError("Curso no encontrado");
+        return;
+      }
+
+      if (!weekData) {
+        setError("Semana no encontrada");
+        return;
+      }
+
+      setCourse(courseData);
+      setWeek(weekData);
+      setLessons(lessonsData);
+      setAssignments(assignmentsData);
+    } catch (err: any) {
+      console.error("Error loading week:", err);
+      setError(err.message || "Error al cargar la semana");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateWeek = async (updates: Partial<CourseWeek>) => {
+    if (!week) return;
+
+    try {
+      await roleService.updateCourseWeek(week.id, updates);
+      setWeek({ ...week, ...updates });
+      setShowEditWeek(false);
+      alert("Semana actualizada exitosamente");
+    } catch (err: any) {
+      alert(err.message || "Error al actualizar la semana");
+    }
+  };
+
+  const handleCreateLesson = async (lessonData: any) => {
+    try {
+      await roleService.createLesson(weekId, lessonData);
+      await loadWeekData();
+      setShowCreateLesson(false);
+      alert("Lección creada exitosamente");
+    } catch (err: any) {
+      alert(err.message || "Error al crear la lección");
+    }
+  };
+
+  const handleDeleteLesson = async (lessonId: string) => {
+    if (!confirm("¿Estás seguro de que quieres eliminar esta lección?")) return;
+
+    try {
+      await roleService.deleteLesson(lessonId);
+      await loadWeekData();
+      alert("Lección eliminada exitosamente");
+    } catch (err: any) {
+      alert(err.message || "Error al eliminar la lección");
+    }
+  };
+
+  const handleCreateAssignment = async (assignmentData: any) => {
+    try {
+      await roleService.createAssignment(weekId, assignmentData);
+      await loadWeekData();
+      setShowCreateAssignment(false);
+      alert("Tarea creada exitosamente");
+    } catch (err: any) {
+      alert(err.message || "Error al crear la tarea");
+    }
+  };
+
+  if (loading) {
+    return (
+      <AuthGuard>
+        <Sidebar />
+        <PageLayout title="Cargando...">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <p>Cargando semana...</p>
+            </div>
+          </div>
+        </PageLayout>
+      </AuthGuard>
+    );
+  }
+
+  if (error || !course || !week) {
+    return (
+      <AuthGuard>
+        <Sidebar />
+        <PageLayout title="Error">
+          <div className="text-center py-12">
+            <div className="text-red-500 text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-red-600 mb-2">Error</h2>
+            <p className="text-gray-600 mb-4">
+              {error || "Contenido no encontrado"}
+            </p>
+            <button
+              onClick={() => router.push(`/courses/${courseId}`)}
+              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+            >
+              Volver al Curso
+            </button>
+          </div>
+        </PageLayout>
+      </AuthGuard>
+    );
+  }
+
+  return (
+    <AuthGuard>
+      <Sidebar />
+      <PageLayout title={`${course.title} - Semana ${week.week_number}`}>
+        <div className="max-w-6xl mx-auto">
+          {/* Header de la Semana */}
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div className="flex justify-between items-start mb-4">
+              <button
+                onClick={() => router.push(`/courses/${courseId}`)}
+                className="text-blue-600 hover:text-blue-800 mb-2 flex items-center"
+              >
+                ← Volver al Curso
+              </button>
+              {canEdit() && (
+                <button
+                  onClick={() => setShowEditWeek(true)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+                >
+                  ✏️ Editar Semana
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="bg-blue-100 text-blue-800 text-lg font-bold px-4 py-2 rounded">
+                SEMANA {week.week_number}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {week.title}
+                </h1>
+                <p className="text-gray-600">{week.description}</p>
+              </div>
+            </div>
+
+            {/* Objetivos y Temas */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {week.objectives && week.objectives.length > 0 && (
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-green-900 mb-2">
+                    🎯 Objetivos de Aprendizaje
+                  </h3>
+                  <ul className="space-y-1">
+                    {week.objectives.map((objective, idx) => (
+                      <li
+                        key={idx}
+                        className="text-green-800 text-sm flex items-start"
+                      >
+                        <span className="text-green-500 mr-2">•</span>
+                        {objective}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {week.topics && week.topics.length > 0 && (
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-blue-900 mb-2">
+                    📋 Temas a Cubrir
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {week.topics.map((topic, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded"
+                      >
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Tabs de Contenido */}
+          <div className="bg-white rounded-lg shadow-lg">
+            <div className="border-b border-gray-200">
+              <nav className="flex space-x-8 px-6">
+                <button
+                  onClick={() => setActiveTab("overview")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === "overview"
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  📊 Resumen
+                </button>
+                <button
+                  onClick={() => setActiveTab("lessons")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === "lessons"
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  📖 Lecciones ({lessons.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab("assignments")}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === "assignments"
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  📝 Tareas ({assignments.length})
+                </button>
+              </nav>
+            </div>
+
+            <div className="p-6">
+              {/* Tab: Resumen */}
+              {activeTab === "overview" && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-blue-50 p-4 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {lessons.length}
+                      </div>
+                      <div className="text-blue-800 text-sm">Lecciones</div>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {assignments.length}
+                      </div>
+                      <div className="text-purple-800 text-sm">Tareas</div>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg text-center">
+                      <div className="text-2xl font-bold text-green-600">
+                        {lessons.reduce(
+                          (total, lesson) => total + lesson.duration_minutes,
+                          0
+                        )}
+                      </div>
+                      <div className="text-green-800 text-sm">
+                        Minutos Total
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Progreso de la semana */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-semibold mb-3">
+                      📈 Contenido de la Semana
+                    </h3>
+                    <div className="space-y-2">
+                      {lessons.length === 0 && assignments.length === 0 ? (
+                        <p className="text-gray-500 text-center py-4">
+                          {canEdit()
+                            ? "Aún no hay contenido. Comienza agregando lecciones o tareas."
+                            : "El instructor aún no ha agregado contenido a esta semana."}
+                        </p>
+                      ) : (
+                        <>
+                          {lessons.length > 0 && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-gray-600">
+                                📖 Lecciones completadas
+                              </span>
+                              <span className="text-sm font-medium">
+                                0/{lessons.length}
+                              </span>
+                            </div>
+                          )}
+                          {assignments.length > 0 && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-gray-600">
+                                📝 Tareas entregadas
+                              </span>
+                              <span className="text-sm font-medium">
+                                0/{assignments.length}
+                              </span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab: Lecciones */}
+              {activeTab === "lessons" && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-semibold">📖 Lecciones</h3>
+                    {canEdit() && (
+                      <button
+                        onClick={() => setShowCreateLesson(true)}
+                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                      >
+                        ➕ Crear Lección
+                      </button>
+                    )}
+                  </div>
+
+                  {lessons.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="text-gray-400 text-6xl mb-4">📖</div>
+                      <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                        No hay lecciones
+                      </h3>
+                      <p className="text-gray-500 mb-4">
+                        {canEdit()
+                          ? "Comienza creando la primera lección de esta semana"
+                          : "El instructor aún no ha creado lecciones para esta semana"}
+                      </p>
+                      {canEdit() && (
+                        <button
+                          onClick={() => setShowCreateLesson(true)}
+                          className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600"
+                        >
+                          ➕ Crear Primera Lección
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {lessons.map((lesson) => (
+                        <div
+                          key={lesson.id}
+                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <span className="bg-gray-100 text-gray-700 text-xs font-bold px-2 py-1 rounded">
+                                  #{lesson.order_index}
+                                </span>
+                                <h4 className="font-semibold">
+                                  {lesson.title}
+                                </h4>
+                                <span
+                                  className={`text-xs px-2 py-1 rounded font-medium ${
+                                    lesson.type === "video"
+                                      ? "bg-red-100 text-red-800"
+                                      : lesson.type === "reading"
+                                      ? "bg-blue-100 text-blue-800"
+                                      : lesson.type === "exercise"
+                                      ? "bg-green-100 text-green-800"
+                                      : lesson.type === "quiz"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-gray-100 text-gray-800"
+                                  }`}
+                                >
+                                  {lesson.type === "video"
+                                    ? "🎥"
+                                    : lesson.type === "reading"
+                                    ? "📖"
+                                    : lesson.type === "exercise"
+                                    ? "💻"
+                                    : lesson.type === "quiz"
+                                    ? "❓"
+                                    : "📄"}{" "}
+                                  {lesson.type}
+                                </span>
+                                {lesson.is_required && (
+                                  <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                                    ⚠️ Obligatoria
+                                  </span>
+                                )}
+                              </div>
+
+                              <p className="text-gray-600 text-sm mb-2">
+                                {lesson.description}
+                              </p>
+
+                              <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                <span>⏱️ {lesson.duration_minutes} min</span>
+                                <span>🏆 {lesson.points_value} puntos</span>
+                              </div>
+
+                              {lesson.content_text && (
+                                <div className="mt-3 p-3 bg-gray-50 rounded text-sm">
+                                  <p className="text-gray-700">
+                                    {lesson.content_text.substring(0, 200)}...
+                                  </p>
+                                </div>
+                              )}
+
+                              {lesson.content_url && (
+                                <div className="mt-2">
+                                  <a
+                                    href={lesson.content_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800 text-sm"
+                                  >
+                                    🔗 Ver recurso externo
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col space-y-2 ml-4">
+                              {currentUser?.role === "student" ? (
+                                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
+                                  ▶️ Comenzar
+                                </button>
+                              ) : (
+                                canEdit() && (
+                                  <>
+                                    <button className="text-blue-600 hover:text-blue-800 text-sm">
+                                      ✏️ Editar
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteLesson(lesson.id)
+                                      }
+                                      className="text-red-600 hover:text-red-800 text-sm"
+                                    >
+                                      🗑️ Eliminar
+                                    </button>
+                                  </>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tab: Tareas */}
+              {activeTab === "assignments" && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-semibold">📝 Tareas</h3>
+                    {canEdit() && (
+                      <button
+                        onClick={() => setShowCreateAssignment(true)}
+                        className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                      >
+                        ➕ Crear Tarea
+                      </button>
+                    )}
+                  </div>
+
+                  {assignments.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="text-gray-400 text-6xl mb-4">📝</div>
+                      <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                        No hay tareas
+                      </h3>
+                      <p className="text-gray-500 mb-4">
+                        {canEdit()
+                          ? "Comienza creando la primera tarea de esta semana"
+                          : "El instructor aún no ha creado tareas para esta semana"}
+                      </p>
+                      {canEdit() && (
+                        <button
+                          onClick={() => setShowCreateAssignment(true)}
+                          className="bg-purple-500 text-white px-6 py-3 rounded hover:bg-purple-600"
+                        >
+                          ➕ Crear Primera Tarea
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {assignments.map((assignment) => (
+                        <div
+                          key={assignment.id}
+                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <h4 className="font-semibold">
+                                  {assignment.title}
+                                </h4>
+                                {assignment.is_required && (
+                                  <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                                    ⚠️ Obligatoria
+                                  </span>
+                                )}
+                              </div>
+
+                              <p className="text-gray-600 text-sm mb-3">
+                                {assignment.description}
+                              </p>
+
+                              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-3">
+                                <span>
+                                  🏆 {assignment.max_points} puntos máximo
+                                </span>
+                                {assignment.due_date && (
+                                  <span>
+                                    📅 Vence:{" "}
+                                    {new Date(
+                                      assignment.due_date
+                                    ).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+
+                              {assignment.instructions && (
+                                <div className="bg-blue-50 p-3 rounded text-sm">
+                                  <h5 className="font-medium text-blue-900 mb-1">
+                                    📋 Instrucciones:
+                                  </h5>
+                                  <p className="text-blue-800">
+                                    {assignment.instructions.substring(0, 300)}
+                                    ...
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex flex-col space-y-2 ml-4">
+                              {currentUser?.role === "student" ? (
+                                <button className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 text-sm">
+                                  📤 Entregar
+                                </button>
+                              ) : (
+                                canEdit() && (
+                                  <>
+                                    <button className="text-blue-600 hover:text-blue-800 text-sm">
+                                      ✏️ Editar
+                                    </button>
+                                    <button className="text-red-600 hover:text-red-800 text-sm">
+                                      🗑️ Eliminar
+                                    </button>
+                                  </>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Modales */}
+        {showEditWeek && (
+          <WeekEditModal
+            week={week}
+            onSave={handleUpdateWeek}
+            onCancel={() => setShowEditWeek(false)}
+          />
+        )}
+
+        {showCreateLesson && (
+          <LessonCreateModal
+            onSave={handleCreateLesson}
+            onCancel={() => setShowCreateLesson(false)}
+            nextOrderIndex={lessons.length + 1}
+          />
+        )}
+
+        {showCreateAssignment && (
+          <AssignmentCreateModal
+            onSave={handleCreateAssignment}
+            onCancel={() => setShowCreateAssignment(false)}
+          />
+        )}
+      </PageLayout>
+    </AuthGuard>
+  );
+}
+
+// Modal para editar semana
+interface WeekEditModalProps {
+  week: CourseWeek;
+  onSave: (updates: Partial<CourseWeek>) => void;
+  onCancel: () => void;
+}
+
+const WeekEditModal: React.FC<WeekEditModalProps> = ({
+  week,
+  onSave,
+  onCancel,
+}) => {
+  const [formData, setFormData] = useState({
+    title: week.title,
+    description: week.description || "",
+    objectives: JSON.stringify(week.objectives || [], null, 2),
+    topics: JSON.stringify(week.topics || [], null, 2),
+    is_locked: week.is_locked,
+    unlock_date: week.unlock_date || "",
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const updates = {
+        ...formData,
+        objectives: JSON.parse(formData.objectives),
+        topics: JSON.parse(formData.topics),
+      };
+      onSave(updates);
+    } catch (err) {
+      alert("Error en el formato JSON de objetivos o temas");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <h3 className="text-lg font-bold mb-4">
+          ✏️ Editar Semana {week.week_number}
+        </h3>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Título de la Semana *
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Descripción
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              🎯 Objetivos (JSON Array)
+            </label>
+            <textarea
+              value={formData.objectives}
+              onChange={(e) =>
+                setFormData({ ...formData, objectives: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2 font-mono text-sm"
+              rows={4}
+              placeholder='["Objetivo 1", "Objetivo 2"]'
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              📋 Temas (JSON Array)
+            </label>
+            <textarea
+              value={formData.topics}
+              onChange={(e) =>
+                setFormData({ ...formData, topics: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2 font-mono text-sm"
+              rows={4}
+              placeholder='["Tema 1", "Tema 2"]'
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Estado
+              </label>
+              <select
+                value={formData.is_locked ? "locked" : "unlocked"}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    is_locked: e.target.value === "locked",
+                  })
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+              >
+                <option value="unlocked">🔓 Disponible</option>
+                <option value="locked">🔒 Bloqueada</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Fecha de Desbloqueo
+              </label>
+              <input
+                type="date"
+                value={formData.unlock_date}
+                onChange={(e) =>
+                  setFormData({ ...formData, unlock_date: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              💾 Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Modal para crear lección
+interface LessonCreateModalProps {
+  onSave: (lessonData: any) => void;
+  onCancel: () => void;
+  nextOrderIndex: number;
+}
+
+const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
+  onSave,
+  onCancel,
+  nextOrderIndex,
+}) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    type: "reading",
+    duration_minutes: 30,
+    order_index: nextOrderIndex,
+    points_value: 10,
+    is_required: true,
+    content_url: "",
+    content_text: "",
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  const lessonTypes = [
+    { value: "video", label: "🎥 Video" },
+    { value: "reading", label: "📖 Lectura" },
+    { value: "exercise", label: "💻 Ejercicio" },
+    { value: "quiz", label: "❓ Quiz" },
+    { value: "assignment", label: "📝 Tarea" },
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <h3 className="text-lg font-bold mb-4">➕ Crear Nueva Lección</h3>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tipo de Lección *
+              </label>
+              <select
+                value={formData.type}
+                onChange={(e) =>
+                  setFormData({ ...formData, type: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+              >
+                {lessonTypes.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Orden *
+              </label>
+              <input
+                type="number"
+                value={formData.order_index}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    order_index: parseInt(e.target.value),
+                  })
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                min="1"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Título de la Lección *
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              required
+              placeholder="ej: Introducción a Variables"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Descripción
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              rows={3}
+              placeholder="Descripción de lo que se aprenderá"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ⏱️ Duración (minutos) *
+              </label>
+              <input
+                type="number"
+                value={formData.duration_minutes}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    duration_minutes: parseInt(e.target.value),
+                  })
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                min="1"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                🏆 Puntos *
+              </label>
+              <input
+                type="number"
+                value={formData.points_value}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    points_value: parseInt(e.target.value),
+                  })
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                min="0"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={formData.is_required}
+                onChange={(e) =>
+                  setFormData({ ...formData, is_required: e.target.checked })
+                }
+                className="mr-2"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                ⚠️ Lección obligatoria
+              </span>
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              🔗 URL del Contenido (opcional)
+            </label>
+            <input
+              type="url"
+              value={formData.content_url}
+              onChange={(e) =>
+                setFormData({ ...formData, content_url: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              placeholder="https://ejemplo.com/video-o-recurso"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              📄 Contenido de Texto (opcional)
+            </label>
+            <textarea
+              value={formData.content_text}
+              onChange={(e) =>
+                setFormData({ ...formData, content_text: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              rows={6}
+              placeholder="Contenido textual de la lección, instrucciones, etc."
+            />
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              ➕ Crear Lección
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Modal para crear tarea
+interface AssignmentCreateModalProps {
+  onSave: (assignmentData: any) => void;
+  onCancel: () => void;
+}
+
+const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
+  onSave,
+  onCancel,
+}) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    instructions: "",
+    due_date: "",
+    max_points: 100,
+    submission_type: "text",
+    is_required: true,
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  const submissionTypes = [
+    { value: "text", label: "📝 Texto" },
+    { value: "file", label: "📎 Archivo" },
+    { value: "url", label: "🔗 URL" },
+    { value: "both", label: "📝📎 Texto y Archivo" },
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <h3 className="text-lg font-bold mb-4">➕ Crear Nueva Tarea</h3>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Título de la Tarea *
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              required
+              placeholder="ej: Proyecto Final - Aplicación Web"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Descripción Breve
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              rows={2}
+              placeholder="Descripción corta de la tarea"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              📋 Instrucciones Detalladas
+            </label>
+            <textarea
+              value={formData.instructions}
+              onChange={(e) =>
+                setFormData({ ...formData, instructions: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              rows={6}
+              placeholder="Instrucciones paso a paso, criterios de evaluación, recursos necesarios, etc."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📅 Fecha de Entrega
+              </label>
+              <input
+                type="datetime-local"
+                value={formData.due_date}
+                onChange={(e) =>
+                  setFormData({ ...formData, due_date: e.target.value })
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                🏆 Puntos Máximos *
+              </label>
+              <input
+                type="number"
+                value={formData.max_points}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    max_points: parseInt(e.target.value),
+                  })
+                }
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                min="1"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tipo de Entrega
+            </label>
+            <select
+              value={formData.submission_type}
+              onChange={(e) =>
+                setFormData({ ...formData, submission_type: e.target.value })
+              }
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+            >
+              {submissionTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={formData.is_required}
+                onChange={(e) =>
+                  setFormData({ ...formData, is_required: e.target.checked })
+                }
+                className="mr-2"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                ⚠️ Tarea obligatoria
+              </span>
+            </label>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+            >
+              ➕ Crear Tarea
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
