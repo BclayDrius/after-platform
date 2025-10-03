@@ -39,26 +39,37 @@ export default function Courses() {
           return;
         }
 
-        // Load enrolled courses (only for students)
+        let enrolledCourses: Course[] = [];
+        let availableCourses: Course[] = [];
+
         if (user.role === "student") {
-          const enrolledCourses = await roleService.getStudentCourses();
-          setCourses(
-            enrolledCourses.map((course) => ({
-              id: course.id,
-              title: course.title,
-              duration: course.duration_weeks,
-              level: course.level,
-              status: "En Progreso",
-              progress: 0, // We'll get this from user_courses later
-              description: course.description || "",
-              instructor: "Instructor", // We'll get this from course_instructors later
-              total_lessons: course.total_lessons,
-            }))
-          );
+          // Estudiantes: ver cursos inscritos y disponibles
+          enrolledCourses = await roleService.getStudentCourses();
+          availableCourses = await roleService.getCourses();
+        } else if (user.role === "teacher") {
+          // Profesores: ver solo sus cursos
+          enrolledCourses = await roleService.getCoursesByInstructor(user.id);
+          availableCourses = enrolledCourses; // Los profesores solo ven sus cursos
+        } else if (user.role === "admin") {
+          // Admin: ver todos los cursos
+          availableCourses = await roleService.getCourses();
+          enrolledCourses = availableCourses; // Admin puede ver todos como "inscritos"
         }
 
-        // Load all available courses
-        const availableCourses = await roleService.getCourses();
+        setCourses(
+          enrolledCourses.map((course) => ({
+            id: course.id,
+            title: course.title,
+            duration: course.duration_weeks,
+            level: course.level,
+            status: user.role === "student" ? "En Progreso" : "Gestionando",
+            progress: user.role === "student" ? 0 : 100, // Admin/Teacher al 100%
+            description: course.description || "",
+            instructor: user.role === "student" ? "Instructor" : "Tú",
+            total_lessons: course.total_lessons,
+          }))
+        );
+
         setAllCourses(
           availableCourses.map((course) => ({
             id: course.id,
@@ -68,7 +79,7 @@ export default function Courses() {
             status: "Disponible",
             progress: 0,
             description: course.description || "",
-            instructor: "Instructor", // We'll get this from course_instructors later
+            instructor: "Instructor",
             total_lessons: course.total_lessons,
           }))
         );
@@ -90,9 +101,35 @@ export default function Courses() {
         return;
       }
 
-      // For now, we'll need an admin or teacher to enroll students
-      // This is a limitation of the current role system
-      alert("Contacta a un administrador para inscribirte en este curso");
+      if (currentUser.role === "student") {
+        // Los estudiantes pueden auto-inscribirse
+        await roleService.enrollStudent(courseId, currentUser.id);
+        alert("¡Te has inscrito exitosamente en el curso!");
+
+        // Recargar los cursos
+        const enrolledCourses = await roleService.getStudentCourses();
+        setCourses(
+          enrolledCourses.map((course) => ({
+            id: course.id,
+            title: course.title,
+            duration: course.duration_weeks,
+            level: course.level,
+            status: "En Progreso",
+            progress: 0,
+            description: course.description || "",
+            instructor: "Instructor",
+            total_lessons: course.total_lessons,
+          }))
+        );
+
+        // Cambiar a la vista de cursos inscritos
+        setView("enrolled");
+      } else {
+        // Admin y teachers pueden gestionar inscripciones desde el panel de administración
+        alert(
+          "Como administrador/profesor, puedes gestionar inscripciones desde el panel de gestión de cursos"
+        );
+      }
     } catch (err: any) {
       alert(err.message || "Error al inscribirse en el curso");
     }
@@ -109,20 +146,32 @@ export default function Courses() {
       <PageLayout title="Cursos">
         <div className={styles.coursesContainer}>
           <div className={styles.coursesHeader}>
-            <h2>Mis Cursos</h2>
+            <h2>
+              {currentUser?.role === "admin"
+                ? "Gestión de Cursos"
+                : currentUser?.role === "teacher"
+                ? "Mis Cursos"
+                : "Mis Cursos"}
+            </h2>
             <div className={styles.viewToggle}>
               <button
                 className={view === "enrolled" ? styles.active : ""}
                 onClick={() => setView("enrolled")}
               >
-                Inscritos ({courses.length})
+                {currentUser?.role === "student"
+                  ? `Inscritos (${courses.length})`
+                  : currentUser?.role === "teacher"
+                  ? `Mis Cursos (${courses.length})`
+                  : `Todos los Cursos (${courses.length})`}
               </button>
-              <button
-                className={view === "available" ? styles.active : ""}
-                onClick={() => setView("available")}
-              >
-                Disponibles ({allCourses.length})
-              </button>
+              {currentUser?.role === "student" && (
+                <button
+                  className={view === "available" ? styles.active : ""}
+                  onClick={() => setView("available")}
+                >
+                  Disponibles ({allCourses.length})
+                </button>
+              )}
             </div>
           </div>
 
@@ -193,23 +242,32 @@ export default function Courses() {
                   {view === "enrolled" ? (
                     <button
                       className={styles.continueBtn}
-                      onClick={() =>
-                        (window.location.href = `/courses/${course.id}`)
-                      }
+                      onClick={() => {
+                        if (currentUser?.role === "student") {
+                          window.location.href = `/courses/${course.id}`;
+                        } else {
+                          // Admin/Teacher van al gestor de cursos
+                          window.location.href = `/dashboard`;
+                        }
+                      }}
                     >
-                      {course.progress === 0
-                        ? "Comenzar"
-                        : course.progress === 100
-                        ? "Revisar"
-                        : "Continuar"}
+                      {currentUser?.role === "student"
+                        ? course.progress === 0
+                          ? "Comenzar"
+                          : course.progress === 100
+                          ? "Revisar"
+                          : "Continuar"
+                        : "Gestionar Curso"}
                     </button>
                   ) : (
-                    <button
-                      className={styles.enrollBtn}
-                      onClick={() => handleEnroll(course.id)}
-                    >
-                      Inscribirse
-                    </button>
+                    currentUser?.role === "student" && (
+                      <button
+                        className={styles.enrollBtn}
+                        onClick={() => handleEnroll(course.id)}
+                      >
+                        Inscribirse
+                      </button>
+                    )
                   )}
                 </div>
               ))}

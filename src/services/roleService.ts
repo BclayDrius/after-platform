@@ -341,15 +341,21 @@ class RoleService {
   // ============================================================================
 
   async enrollStudent(courseId: string, studentId: string): Promise<void> {
+    const currentUser = await this.getCurrentUser();
+    if (!currentUser) throw new Error("Usuario no autenticado");
+
+    // Si es un estudiante inscribiéndose a sí mismo, permitir auto-inscripción
+    if (currentUser.role === "student" && currentUser.id === studentId) {
+      return this.selfEnrollInCourse(courseId);
+    }
+
+    // Para admin/teacher inscribiendo a otros estudiantes
     const canManage = await this.canManageCourse(courseId);
     if (!canManage) {
       throw new Error(
         "No tienes permisos para inscribir estudiantes en este curso"
       );
     }
-
-    const currentUser = await this.getCurrentUser();
-    if (!currentUser) throw new Error("Usuario no autenticado");
 
     // Verify the user is actually a student
     const { data: student } = await supabase
@@ -391,6 +397,92 @@ class RoleService {
     }
 
     // Update course student count
+    await supabase.rpc("increment_course_students", { course_id: courseId });
+  }
+
+  async selfEnrollInCourse(courseId: string): Promise<void> {
+    const currentUser = await this.getCurrentUser();
+    if (!currentUser || currentUser.role !== "student") {
+      throw new Error("Solo los estudiantes pueden auto-inscribirse");
+    }
+
+    // Verificar que el curso existe y está activo
+    const { data: course } = await supabase
+      .from("courses")
+      .select("id, max_students, current_students, is_active")
+      .eq("id", courseId)
+      .eq("is_active", true)
+      .single();
+
+    if (!course) {
+      throw new Error("Curso no encontrado o no está disponible");
+    }
+
+    // Verificar que hay cupo disponible
+    if (course.current_students >= course.max_students) {
+      throw new Error("El curso ha alcanzado su capacidad máxima");
+    }
+
+    // Verificar que no esté ya inscrito
+    const { data: existingEnrollment } = await supabase
+      .from("user_courses")
+      .select("status")
+      .eq("user_id", currentUser.id)
+      .eq("course_id", courseId)
+      .single();
+
+    if (existingEnrollment) {
+      if (existingEnrollment.status === "active") {
+        throw new Error("Ya estás inscrito en este curso");
+      } else if (existingEnrollment.status === "withdrawn") {
+        // Reactivar inscripción
+        const { error } = await supabase
+          .from("user_courses")
+          .update({
+            status: "active",
+            enrolled_at: new Date().toISOString(),
+          })
+          .eq("user_id", currentUser.id)
+          .eq("course_id", courseId);
+
+        if (error) throw error;
+        await supabase.rpc("increment_course_students", {
+          course_id: courseId,
+        });
+        return;
+      }
+    }
+
+    // Crear nueva inscripción
+    const { error } = await supabase.from("user_courses").insert({
+      user_id: currentUser.id,
+      course_id: courseId,
+      enrolled_by: currentUser.id, // Auto-inscripción
+      current_week: 1,
+      progress_percentage: 0,
+      status: "active",
+    });
+
+    if (error) throw error;
+
+    // Desbloquear primera semana automáticamente
+    const { data: firstWeek } = await supabase
+      .from("course_weeks")
+      .select("id")
+      .eq("course_id", courseId)
+      .eq("week_number", 1)
+      .single();
+
+    if (firstWeek) {
+      await supabase.from("user_week_unlocks").insert({
+        user_id: currentUser.id,
+        week_id: firstWeek.id,
+        unlocked_by: currentUser.id,
+        auto_unlocked: true,
+      });
+    }
+
+    // Actualizar contador de estudiantes
     await supabase.rpc("increment_course_students", { course_id: courseId });
   }
 
@@ -583,6 +675,405 @@ class RoleService {
     if (error) throw error;
     return (data?.map((item: any) => item.courses).filter(Boolean) ||
       []) as Course[];
+  }
+
+  // ============================================================================
+  // CONTENT MANAGEMENT - WEEKS, LESSONS, ASSIGNMENTS
+  // ============================================================================
+
+  async getCourseWeeks(courseId: string): Promise<CourseWeek[]> {
+    const canAccess = await this.canAccessCourse(courseId);
+    if (!canAccess) {
+      throw new Error("No tienes acceso a este curso");
+    }
+
+    const { data, error } = await supabase
+      .from("course_weeks")
+      .select("*")
+      .eq("course_id", courseId)
+      .order("week_number");
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  async createCourseWeek(
+    courseId: string,
+    weekData: Omit<CourseWeek, "id" | "created_at">
+  ): Promise<CourseWeek> {
+    const canManage = await this.canManageCourse(courseId);
+    if (!canManage) {
+      throw new Error("No tienes permisos para crear semanas en este curso");
+    }
+
+    // Verificar que no exceda 12 semanas
+    const { count } = await supabase
+      .from("course_weeks")
+      .select("*", { count: "exact", head: true })
+      .eq("course_id", courseId);
+
+    if (count && count >= 12) {
+      throw new Error("Un curso no puede tener más de 12 semanas");
+    }
+
+    const { data, error } = await supabase
+      .from("course_weeks")
+      .insert(weekData)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async updateCourseWeek(
+    weekId: string,
+    updates: Partial<CourseWeek>
+  ): Promise<void> {
+    // Verificar permisos
+    const { data: week } = await supabase
+      .from("course_weeks")
+      .select("course_id")
+      .eq("id", weekId)
+      .single();
+
+    if (!week) throw new Error("Semana no encontrada");
+
+    const canManage = await this.canManageCourse(week.course_id);
+    if (!canManage) {
+      throw new Error("No tienes permisos para editar esta semana");
+    }
+
+    const { error } = await supabase
+      .from("course_weeks")
+      .update(updates)
+      .eq("id", weekId);
+
+    if (error) throw error;
+  }
+
+  async deleteCourseWeek(weekId: string): Promise<void> {
+    const { data: week } = await supabase
+      .from("course_weeks")
+      .select("course_id")
+      .eq("id", weekId)
+      .single();
+
+    if (!week) throw new Error("Semana no encontrada");
+
+    const canManage = await this.canManageCourse(week.course_id);
+    if (!canManage) {
+      throw new Error("No tienes permisos para eliminar esta semana");
+    }
+
+    const { error } = await supabase
+      .from("course_weeks")
+      .delete()
+      .eq("id", weekId);
+
+    if (error) throw error;
+  }
+
+  // ============================================================================
+  // LESSON MANAGEMENT
+  // ============================================================================
+
+  async getWeekLessons(weekId: string): Promise<Lesson[]> {
+    // Verificar acceso al curso
+    const { data: week } = await supabase
+      .from("course_weeks")
+      .select("course_id")
+      .eq("id", weekId)
+      .single();
+
+    if (!week) throw new Error("Semana no encontrada");
+
+    const canAccess = await this.canAccessCourse(week.course_id);
+    if (!canAccess) {
+      throw new Error("No tienes acceso a este contenido");
+    }
+
+    const { data, error } = await supabase
+      .from("lessons")
+      .select("*")
+      .eq("week_id", weekId)
+      .order("order_index");
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  async createLesson(
+    weekId: string,
+    lessonData: Omit<Lesson, "id" | "created_at">
+  ): Promise<Lesson> {
+    // Verificar permisos
+    const { data: week } = await supabase
+      .from("course_weeks")
+      .select("course_id")
+      .eq("id", weekId)
+      .single();
+
+    if (!week) throw new Error("Semana no encontrada");
+
+    const canManage = await this.canManageCourse(week.course_id);
+    if (!canManage) {
+      throw new Error("No tienes permisos para crear lecciones en este curso");
+    }
+
+    const { data, error } = await supabase
+      .from("lessons")
+      .insert({ ...lessonData, week_id: weekId })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async updateLesson(
+    lessonId: string,
+    updates: Partial<Lesson>
+  ): Promise<void> {
+    // Verificar permisos
+    const { data: lesson } = await supabase
+      .from("lessons")
+      .select(
+        `
+        week_id,
+        course_weeks!inner(course_id)
+      `
+      )
+      .eq("id", lessonId)
+      .single();
+
+    if (!lesson) throw new Error("Lección no encontrada");
+
+    const canManage = await this.canManageCourse(
+      (lesson as any).course_weeks.course_id
+    );
+    if (!canManage) {
+      throw new Error("No tienes permisos para editar esta lección");
+    }
+
+    const { error } = await supabase
+      .from("lessons")
+      .update(updates)
+      .eq("id", lessonId);
+
+    if (error) throw error;
+  }
+
+  async deleteLesson(lessonId: string): Promise<void> {
+    // Verificar permisos
+    const { data: lesson } = await supabase
+      .from("lessons")
+      .select(
+        `
+        week_id,
+        course_weeks!inner(course_id)
+      `
+      )
+      .eq("id", lessonId)
+      .single();
+
+    if (!lesson) throw new Error("Lección no encontrada");
+
+    const canManage = await this.canManageCourse(
+      (lesson as any).course_weeks.course_id
+    );
+    if (!canManage) {
+      throw new Error("No tienes permisos para eliminar esta lección");
+    }
+
+    const { error } = await supabase
+      .from("lessons")
+      .delete()
+      .eq("id", lessonId);
+
+    if (error) throw error;
+  }
+
+  // ============================================================================
+  // ASSIGNMENT MANAGEMENT
+  // ============================================================================
+
+  async getWeekAssignments(weekId: string): Promise<any[]> {
+    // Verificar acceso
+    const { data: week } = await supabase
+      .from("course_weeks")
+      .select("course_id")
+      .eq("id", weekId)
+      .single();
+
+    if (!week) throw new Error("Semana no encontrada");
+
+    const canAccess = await this.canAccessCourse(week.course_id);
+    if (!canAccess) {
+      throw new Error("No tienes acceso a este contenido");
+    }
+
+    const { data, error } = await supabase
+      .from("assignments")
+      .select("*")
+      .eq("week_id", weekId)
+      .order("created_at");
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  async createAssignment(weekId: string, assignmentData: any): Promise<any> {
+    // Verificar permisos
+    const { data: week } = await supabase
+      .from("course_weeks")
+      .select("course_id")
+      .eq("id", weekId)
+      .single();
+
+    if (!week) throw new Error("Semana no encontrada");
+
+    const canManage = await this.canManageCourse(week.course_id);
+    if (!canManage) {
+      throw new Error("No tienes permisos para crear tareas en este curso");
+    }
+
+    const currentUser = await this.getCurrentUser();
+    if (!currentUser) throw new Error("Usuario no autenticado");
+
+    const { data, error } = await supabase
+      .from("assignments")
+      .insert({
+        ...assignmentData,
+        week_id: weekId,
+        created_by: currentUser.id,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async updateAssignment(assignmentId: string, updates: any): Promise<void> {
+    // Verificar permisos
+    const { data: assignment } = await supabase
+      .from("assignments")
+      .select(
+        `
+        week_id,
+        course_weeks!inner(course_id)
+      `
+      )
+      .eq("id", assignmentId)
+      .single();
+
+    if (!assignment) throw new Error("Tarea no encontrada");
+
+    const canManage = await this.canManageCourse(
+      (assignment as any).course_weeks.course_id
+    );
+    if (!canManage) {
+      throw new Error("No tienes permisos para editar esta tarea");
+    }
+
+    const { error } = await supabase
+      .from("assignments")
+      .update(updates)
+      .eq("id", assignmentId);
+
+    if (error) throw error;
+  }
+
+  async deleteAssignment(assignmentId: string): Promise<void> {
+    // Verificar permisos
+    const { data: assignment } = await supabase
+      .from("assignments")
+      .select(
+        `
+        week_id,
+        course_weeks!inner(course_id)
+      `
+      )
+      .eq("id", assignmentId)
+      .single();
+
+    if (!assignment) throw new Error("Tarea no encontrada");
+
+    const canManage = await this.canManageCourse(
+      (assignment as any).course_weeks.course_id
+    );
+    if (!canManage) {
+      throw new Error("No tienes permisos para eliminar esta tarea");
+    }
+
+    const { error } = await supabase
+      .from("assignments")
+      .delete()
+      .eq("id", assignmentId);
+
+    if (error) throw error;
+  }
+
+  // ============================================================================
+  // WEEK UNLOCK MANAGEMENT
+  // ============================================================================
+
+  async unlockWeekForStudent(weekId: string, studentId: string): Promise<void> {
+    // Verificar permisos
+    const { data: week } = await supabase
+      .from("course_weeks")
+      .select("course_id")
+      .eq("id", weekId)
+      .single();
+
+    if (!week) throw new Error("Semana no encontrada");
+
+    const canManage = await this.canManageCourse(week.course_id);
+    if (!canManage) {
+      throw new Error(
+        "No tienes permisos para desbloquear semanas en este curso"
+      );
+    }
+
+    const currentUser = await this.getCurrentUser();
+    if (!currentUser) throw new Error("Usuario no autenticado");
+
+    const { error } = await supabase.from("user_week_unlocks").insert({
+      user_id: studentId,
+      week_id: weekId,
+      unlocked_by: currentUser.id,
+      auto_unlocked: false,
+    });
+
+    if (error && error.code !== "23505") {
+      // Ignore duplicate key error
+      throw error;
+    }
+  }
+
+  async lockWeekForStudent(weekId: string, studentId: string): Promise<void> {
+    // Verificar permisos
+    const { data: week } = await supabase
+      .from("course_weeks")
+      .select("course_id")
+      .eq("id", weekId)
+      .single();
+
+    if (!week) throw new Error("Semana no encontrada");
+
+    const canManage = await this.canManageCourse(week.course_id);
+    if (!canManage) {
+      throw new Error("No tienes permisos para bloquear semanas en este curso");
+    }
+
+    const { error } = await supabase
+      .from("user_week_unlocks")
+      .delete()
+      .eq("user_id", studentId)
+      .eq("week_id", weekId);
+
+    if (error) throw error;
   }
 }
 

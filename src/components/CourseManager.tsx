@@ -7,6 +7,7 @@ import {
   Course,
   WithdrawalRequest,
 } from "@/services/roleService";
+import CourseContentManager from "./CourseContentManager";
 
 interface CourseManagerProps {
   currentUser: User;
@@ -21,6 +22,7 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"courses" | "requests">("courses");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
   const [newCourse, setNewCourse] = useState({
     title: "",
     description: "",
@@ -139,6 +141,17 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
 
   if (loading) {
     return <div className="text-center py-4">Cargando...</div>;
+  }
+
+  // Si hay un curso seleccionado, mostrar el gestor de contenido
+  if (selectedCourseId) {
+    return (
+      <CourseContentManager
+        currentUser={currentUser}
+        courseId={selectedCourseId}
+        onBack={() => setSelectedCourseId(null)}
+      />
+    );
   }
 
   return (
@@ -329,10 +342,16 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
                 ) : (
                   <div className="space-x-2">
                     <button
+                      onClick={() => setSelectedCourseId(course.id)}
+                      className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+                    >
+                      📚 Gestionar Contenido
+                    </button>
+                    <button
                       onClick={() => handleDeleteCourse(course.id)}
                       className="text-red-600 hover:text-red-800 text-sm"
                     >
-                      Eliminar
+                      🗑️ Eliminar
                     </button>
                   </div>
                 )}
