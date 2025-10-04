@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { roleService, User, UserRole } from "@/services/roleService";
+import Toast from "./Toast";
 
 interface RoleManagerProps {
   currentUser: User;
@@ -12,6 +13,11 @@ const RoleManager: React.FC<RoleManagerProps> = ({ currentUser }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedRole, setSelectedRole] = useState<UserRole>("student");
+  const [toast, setToast] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info";
+  }>({ isOpen: false, message: "", type: "success" });
 
   useEffect(() => {
     loadUsers();
@@ -34,9 +40,17 @@ const RoleManager: React.FC<RoleManagerProps> = ({ currentUser }) => {
     try {
       await roleService.updateUserRole(userId, newRole);
       await loadUsers(); // Reload users
-      alert("Rol actualizado exitosamente");
+      setToast({
+        isOpen: true,
+        message: "Rol actualizado exitosamente",
+        type: "success",
+      });
     } catch (err) {
-      setError("Error al actualizar el rol");
+      setToast({
+        isOpen: true,
+        message: "Error al actualizar el rol",
+        type: "error",
+      });
       console.error(err);
     }
   };
@@ -165,6 +179,15 @@ const RoleManager: React.FC<RoleManagerProps> = ({ currentUser }) => {
           No hay usuarios con el rol seleccionado.
         </div>
       )}
+      {/* Toast de Notificaciones */}
+      <Toast
+        isOpen={toast.isOpen}
+        message={toast.message}
+        type={toast.type}
+        onClose={() =>
+          setToast({ isOpen: false, message: "", type: "success" })
+        }
+      />
     </div>
   );
 };

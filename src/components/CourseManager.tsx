@@ -8,6 +8,8 @@ import {
   WithdrawalRequest,
 } from "@/services/roleService";
 import CourseContentManager from "./CourseContentManager";
+import ConfirmModal from "./ConfirmModal";
+import Toast from "./Toast";
 
 interface CourseManagerProps {
   currentUser: User;
@@ -29,6 +31,19 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
     level: "beginner" as const,
     max_students: 50,
   });
+
+  // Estados para modales
+  const [confirmDelete, setConfirmDelete] = useState<{
+    isOpen: boolean;
+    courseId: string;
+    courseTitle: string;
+  }>({ isOpen: false, courseId: "", courseTitle: "" });
+
+  const [toast, setToast] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info";
+  }>({ isOpen: false, message: "", type: "success" });
 
   useEffect(() => {
     loadData();
@@ -84,22 +99,45 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
       });
       setShowCreateForm(false);
       await loadData();
-      alert("Curso creado exitosamente");
+      setToast({
+        isOpen: true,
+        message: "Curso creado exitosamente",
+        type: "success",
+      });
     } catch (err) {
-      setError("Error al crear el curso");
+      setToast({
+        isOpen: true,
+        message: "Error al crear el curso",
+        type: "error",
+      });
       console.error(err);
     }
   };
 
-  const handleDeleteCourse = async (courseId: string) => {
-    if (!confirm("¿Estás seguro de que quieres eliminar este curso?")) return;
+  const handleDeleteCourse = (courseId: string, courseTitle: string) => {
+    setConfirmDelete({
+      isOpen: true,
+      courseId,
+      courseTitle,
+    });
+  };
 
+  const confirmDeleteCourse = async () => {
     try {
-      await roleService.deleteCourse(courseId);
+      await roleService.deleteCourse(confirmDelete.courseId);
       await loadData();
-      alert("Curso eliminado exitosamente");
+      setConfirmDelete({ isOpen: false, courseId: "", courseTitle: "" });
+      setToast({
+        isOpen: true,
+        message: "Curso eliminado exitosamente",
+        type: "success",
+      });
     } catch (err) {
-      setError("Error al eliminar el curso");
+      setToast({
+        isOpen: true,
+        message: "Error al eliminar el curso",
+        type: "error",
+      });
       console.error(err);
     }
   };
@@ -119,9 +157,19 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
         notes || undefined
       );
       await loadData();
-      alert(`Solicitud ${approved ? "aprobada" : "rechazada"} exitosamente`);
+      setToast({
+        isOpen: true,
+        message: `Solicitud ${
+          approved ? "aprobada" : "rechazada"
+        } exitosamente`,
+        type: "success",
+      });
     } catch (err) {
-      setError("Error al procesar la solicitud");
+      setToast({
+        isOpen: true,
+        message: "Error al procesar la solicitud",
+        type: "error",
+      });
       console.error(err);
     }
   };
@@ -132,9 +180,18 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
 
     try {
       await roleService.requestWithdrawal(courseId, reason);
-      alert("Solicitud de retiro enviada. Será revisada por los instructores.");
+      setToast({
+        isOpen: true,
+        message:
+          "Solicitud de retiro enviada. Será revisada por los instructores.",
+        type: "success",
+      });
     } catch (err) {
-      setError("Error al enviar la solicitud");
+      setToast({
+        isOpen: true,
+        message: "Error al enviar la solicitud",
+        type: "error",
+      });
       console.error(err);
     }
   };
@@ -348,7 +405,9 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
                       📚 Gestionar Contenido
                     </button>
                     <button
-                      onClick={() => handleDeleteCourse(course.id)}
+                      onClick={() =>
+                        handleDeleteCourse(course.id, course.title)
+                      }
                       className="text-red-600 hover:text-red-800 text-sm"
                     >
                       🗑️ Eliminar
@@ -432,6 +491,30 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
             : "No hay cursos disponibles."}
         </div>
       )}
+
+      {/* Modal de Confirmación de Eliminación */}
+      <ConfirmModal
+        isOpen={confirmDelete.isOpen}
+        title="Eliminar Curso"
+        message={`¿Estás seguro de que quieres eliminar el curso "${confirmDelete.courseTitle}"? Esta acción no se puede deshacer y se eliminará todo el contenido del curso.`}
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        type="danger"
+        onConfirm={confirmDeleteCourse}
+        onCancel={() =>
+          setConfirmDelete({ isOpen: false, courseId: "", courseTitle: "" })
+        }
+      />
+
+      {/* Toast de Notificaciones */}
+      <Toast
+        isOpen={toast.isOpen}
+        message={toast.message}
+        type={toast.type}
+        onClose={() =>
+          setToast({ isOpen: false, message: "", type: "success" })
+        }
+      />
     </div>
   );
 };

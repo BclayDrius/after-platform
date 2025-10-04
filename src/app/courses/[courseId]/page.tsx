@@ -7,6 +7,8 @@ import PageLayout from "@/components/PageLayout";
 import AuthGuard from "@/components/AuthGuard";
 import { roleService, Course, CourseWeek, User } from "@/services/roleService";
 import styles from "./course.module.scss";
+import ConfirmModal from "@/components/ConfirmModal";
+import Toast from "@/components/Toast";
 
 export default function CoursePage() {
   const params = useParams();
@@ -19,6 +21,16 @@ export default function CoursePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showEditCourse, setShowEditCourse] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<{
+    isOpen: boolean;
+    weekId: string;
+    weekNumber: number;
+  }>({ isOpen: false, weekId: "", weekNumber: 0 });
+  const [toast, setToast] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info";
+  }>({ isOpen: false, message: "", type: "success" });
 
   const canEdit = () => {
     if (!currentUser || !course) return false;

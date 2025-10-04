@@ -6,6 +6,7 @@ import PageLayout from "@/components/PageLayout";
 import AuthGuard from "@/components/AuthGuard";
 import { roleService, Course, User } from "@/services/roleService";
 import styles from "./courses.module.scss";
+import Toast from "@/components/Toast";
 
 interface CourseDisplay {
   id: string;
@@ -26,6 +27,11 @@ export default function Courses() {
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<"enrolled" | "available">("enrolled");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [toast, setToast] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info";
+  }>({ isOpen: false, message: "", type: "success" });
 
   useEffect(() => {
     const loadData = async () => {
@@ -97,14 +103,22 @@ export default function Courses() {
   const handleEnroll = async (courseId: string) => {
     try {
       if (!currentUser) {
-        alert("Debes estar autenticado para inscribirte");
+        setToast({
+          isOpen: true,
+          message: "Debes estar autenticado para inscribirte",
+          type: "warning",
+        });
         return;
       }
 
       if (currentUser.role === "student") {
         // Los estudiantes pueden auto-inscribirse
         await roleService.enrollStudent(courseId, currentUser.id);
-        alert("¡Te has inscrito exitosamente en el curso!");
+        setToast({
+          isOpen: true,
+          message: "¡Te has inscrito exitosamente en el curso!",
+          type: "success",
+        });
 
         // Recargar los cursos
         const enrolledCourses = await roleService.getStudentCourses();
@@ -126,12 +140,19 @@ export default function Courses() {
         setView("enrolled");
       } else {
         // Admin y teachers pueden gestionar inscripciones desde el panel de administración
-        alert(
-          "Como administrador/profesor, puedes gestionar inscripciones desde el panel de gestión de cursos"
-        );
+        setToast({
+          isOpen: true,
+          message:
+            "Como administrador/profesor, puedes gestionar inscripciones desde el panel de gestión de cursos",
+          type: "info",
+        });
       }
     } catch (err: any) {
-      alert(err.message || "Error al inscribirse en el curso");
+      setToast({
+        isOpen: true,
+        message: err.message || "Error al inscribirse en el curso",
+        type: "error",
+      });
     }
   };
 
@@ -270,6 +291,16 @@ export default function Courses() {
             </div>
           )}
         </div>
+
+        {/* Toast de Notificaciones */}
+        <Toast
+          isOpen={toast.isOpen}
+          message={toast.message}
+          type={toast.type}
+          onClose={() =>
+            setToast({ isOpen: false, message: "", type: "success" })
+          }
+        />
       </PageLayout>
     </AuthGuard>
   );

@@ -1,0 +1,754 @@
+.container {
+    padding: 1.5rem;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+
+    .loadingSpinner {
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid #e5e7eb;
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    text-align: center;
+
+    .errorIcon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    h2 {
+        color: #dc2626;
+        margin-bottom: 1rem;
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+
+    .headerContent {
+        flex: 1;
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .description {
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .readOnlyBadge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+        }
+    }
+
+    .headerMeta {
+        text-align: right;
+
+        .metaItem {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+
+            .metaValue {
+                font-weight: 500;
+                text-transform: capitalize;
+            }
+        }
+
+        .editPermissions {
+            font-size: 0.75rem;
+            color: #059669;
+            margin-top: 0.25rem;
+        }
+    }
+}
+
+.backButton {
+    color: #2563eb;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+
+    &:hover {
+        color: #1d4ed8;
+    }
+}
+
+.errorAlert {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    border-radius: 0.375rem;
+}
+
+.tabsContainer {
+    margin-bottom: 1.5rem;
+}
+
+.tabsHeader {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tabsNav {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: -1px;
+}
+
+.tab {
+    padding: 0.5rem 0.25rem;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        color: #374151;
+    }
+
+    &.active {
+        border-bottom-color: #3b82f6;
+        color: #2563eb;
+    }
+}
+
+// Overview Tab
+.overviewTab {
+    .statsGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .statCard {
+        padding: 1rem;
+        border-radius: 0.5rem;
+
+        &.blue {
+            background: #eff6ff;
+        }
+
+        &.green {
+            background: #f0fdf4;
+        }
+
+        &.purple {
+            background: #faf5ff;
+        }
+
+        .statTitle {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .statValue {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .statLabel {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+    }
+
+    .progressCard {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+
+        .progressTitle {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .progressBar {
+            width: 100%;
+            background: #e5e7eb;
+            border-radius: 9999px;
+            height: 0.75rem;
+            margin-bottom: 0.5rem;
+
+            .progressFill {
+                background: #2563eb;
+                height: 100%;
+                border-radius: 9999px;
+                transition: width 0.3s;
+            }
+        }
+
+        .progressText {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+    }
+
+    .suggestionCard {
+        background: #fffbeb;
+        border: 1px solid #fed7aa;
+        padding: 1rem;
+        border-radius: 0.5rem;
+
+        .suggestionTitle {
+            font-weight: 500;
+            color: #92400e;
+            margin-bottom: 0.25rem;
+        }
+
+        .suggestionText {
+            font-size: 0.875rem;
+            color: #a16207;
+        }
+    }
+}
+
+// Weeks Tab
+.weeksTab {
+    .tabHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+
+        .tabTitle {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+    }
+
+    .completeCourseAlert {
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        border-radius: 0.375rem;
+    }
+
+    .weeksGrid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .weekCard {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        transition: box-shadow 0.2s;
+
+        &:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .weekCardContent {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+
+            .weekCardMain {
+                flex: 1;
+
+                .weekHeader {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    margin-bottom: 0.5rem;
+
+                    .weekBadge {
+                        background: #dbeafe;
+                        color: #1e40af;
+                        font-size: 0.75rem;
+                        font-weight: bold;
+                        padding: 0.125rem 0.5rem;
+                        border-radius: 0.25rem;
+                    }
+
+                    .weekTitle {
+                        font-weight: 600;
+                        font-size: 1.125rem;
+                    }
+                }
+
+                .weekDescription {
+                    color: #6b7280;
+                    font-size: 0.875rem;
+                    margin-bottom: 0.75rem;
+                }
+
+                .weekObjectives {
+                    margin-bottom: 0.75rem;
+
+                    .objectivesLabel {
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                        color: #6b7280;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                    }
+
+                    .objectivesList {
+                        font-size: 0.875rem;
+                        color: #6b7280;
+                        margin-left: 1rem;
+                        margin-top: 0.25rem;
+
+                        .objectiveItem {
+                            display: flex;
+                            align-items: flex-start;
+                            margin-bottom: 0.25rem;
+
+                            .bullet {
+                                color: #10b981;
+                                margin-right: 0.5rem;
+                            }
+                        }
+                    }
+                }
+
+                .weekTopics {
+                    margin-bottom: 0.75rem;
+
+                    .topicsLabel {
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                        color: #6b7280;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                    }
+
+                    .topicsList {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 0.25rem;
+                        margin-top: 0.25rem;
+
+                        .topicTag {
+                            background: #dbeafe;
+                            color: #1e40af;
+                            font-size: 0.75rem;
+                            padding: 0.125rem 0.5rem;
+                            border-radius: 0.25rem;
+                        }
+                    }
+                }
+
+                .weekMeta {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    font-size: 0.75rem;
+
+                    .statusBadge {
+                        padding: 0.125rem 0.5rem;
+                        border-radius: 0.25rem;
+                        font-weight: 500;
+
+                        &.locked {
+                            background: #fef2f2;
+                            color: #dc2626;
+                        }
+
+                        &.unlocked {
+                            background: #f0fdf4;
+                            color: #166534;
+                        }
+                    }
+
+                    .metaText {
+                        color: #6b7280;
+                    }
+                }
+            }
+
+            .weekActions {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                margin-left: 1rem;
+            }
+        }
+    }
+}
+
+// Content Tab
+.contentTab {
+    .contentGrid {
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+        gap: 1.5rem;
+
+        @media (max-width: 1024px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .weekSelector {
+        .selectorTitle {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .selectorList {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .selectorItem {
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                border-color: #d1d5db;
+                background: #f9fafb;
+            }
+
+            &.selected {
+                border-color: #3b82f6;
+                background: #eff6ff;
+                color: #1d4ed8;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .selectorWeek {
+                font-weight: 500;
+            }
+
+            .selectorTitle {
+                font-size: 0.875rem;
+                color: #6b7280;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .selectorMeta {
+                font-size: 0.75rem;
+                color: #6b7280;
+                margin-top: 0.25rem;
+            }
+        }
+    }
+
+    .contentArea {
+        .contentHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+
+            .contentInfo {
+                flex: 1;
+
+                .contentTitle {
+                    font-weight: 600;
+                    font-size: 1.125rem;
+                    margin-bottom: 0.25rem;
+                }
+
+                .contentDescription {
+                    font-size: 0.875rem;
+                    color: #6b7280;
+                }
+            }
+
+            .contentActions {
+                display: flex;
+                gap: 0.5rem;
+            }
+        }
+
+        .lessonsSection,
+        .assignmentsSection {
+            margin-bottom: 2rem;
+
+            .sectionTitle {
+                font-weight: 500;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .itemsList {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .itemCard {
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                transition: box-shadow 0.2s;
+
+                &:hover {
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                }
+
+                .itemContent {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+
+                    .itemMain {
+                        flex: 1;
+
+                        .itemHeader {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            margin-bottom: 0.5rem;
+
+                            .orderBadge {
+                                background: #f3f4f6;
+                                color: #374151;
+                                font-size: 0.75rem;
+                                font-weight: bold;
+                                padding: 0.125rem 0.5rem;
+                                border-radius: 0.25rem;
+                            }
+
+                            .itemTitle {
+                                font-weight: 500;
+                            }
+
+                            .typeBadge {
+                                font-size: 0.75rem;
+                                padding: 0.125rem 0.5rem;
+                                border-radius: 0.25rem;
+                                font-weight: 500;
+
+                                &.video {
+                                    background: #fef2f2;
+                                    color: #dc2626;
+                                }
+
+                                &.reading {
+                                    background: #eff6ff;
+                                    color: #2563eb;
+                                }
+
+                                &.exercise {
+                                    background: #f0fdf4;
+                                    color: #166534;
+                                }
+
+                                &.quiz {
+                                    background: #fffbeb;
+                                    color: #d97706;
+                                }
+
+                                &.other {
+                                    background: #f3f4f6;
+                                    color: #374151;
+                                }
+                            }
+                        }
+
+                        .itemDescription {
+                            font-size: 0.875rem;
+                            color: #6b7280;
+                            margin-bottom: 0.5rem;
+                        }
+
+                        .itemMeta {
+                            display: flex;
+                            align-items: center;
+                            gap: 1rem;
+                            font-size: 0.75rem;
+                            color: #6b7280;
+
+                            .requiredBadge {
+                                color: #dc2626;
+                                font-weight: 500;
+                            }
+                        }
+                    }
+
+                    .itemActions {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.5rem;
+                        margin-left: 1rem;
+                    }
+                }
+            }
+
+            .emptyContent {
+                text-align: center;
+                padding: 2rem;
+                border: 2px dashed #e5e7eb;
+                border-radius: 0.5rem;
+                color: #6b7280;
+
+                .emptyIcon {
+                    font-size: 1.5rem;
+                    margin-bottom: 0.5rem;
+                }
+
+                .emptyText {
+                    font-size: 0.875rem;
+                    margin-bottom: 0.75rem;
+                }
+            }
+        }
+    }
+}
+
+// Common styles
+.createButton {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background: #2563eb;
+    }
+}
+
+.actionButton {
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: background-color 0.2s;
+
+    &.green {
+        background: #10b981;
+        color: white;
+
+        &:hover {
+            background: #059669;
+        }
+    }
+
+    &.purple {
+        background: #8b5cf6;
+        color: white;
+
+        &:hover {
+            background: #7c3aed;
+        }
+    }
+}
+
+.editButton {
+    color: #2563eb;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+
+    &:hover {
+        color: #1d4ed8;
+    }
+}
+
+.deleteButton {
+    color: #dc2626;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+
+    &:hover {
+        color: #b91c1c;
+    }
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0;
+    text-align: center;
+    color: #6b7280;
+
+    .emptyIcon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .emptyTitle {
+        font-size: 1.125rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .emptyText {
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+}
