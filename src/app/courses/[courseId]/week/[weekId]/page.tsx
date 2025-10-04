@@ -632,7 +632,12 @@ const WeekEditModal: React.FC<WeekEditModalProps> = ({
     objectives: JSON.stringify(week.objectives || [], null, 2),
     topics: JSON.stringify(week.topics || [], null, 2),
     is_locked: week.is_locked,
-    unlock_date: week.unlock_date || "",
+    unlock_date: week.unlock_date
+      ? new Date(week.unlock_date).toISOString().slice(0, 16)
+      : "",
+    estimated_hours: (week as any).estimated_hours || 4,
+    max_points: (week as any).max_points || 100,
+    instructor_notes: (week as any).instructor_notes || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -645,7 +650,9 @@ const WeekEditModal: React.FC<WeekEditModalProps> = ({
       };
       onSave(updates);
     } catch (err) {
-      alert("Error en el formato JSON de objetivos o temas");
+      // Mostrar error en el formulario en lugar de alert
+      console.error("Error en el formato JSON:", err);
+      return;
     }
   };
 
@@ -657,70 +664,38 @@ const WeekEditModal: React.FC<WeekEditModalProps> = ({
         </h3>
 
         <form onSubmit={handleSubmit} className={styles.modalForm}>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Título de la Semana *
-            </label>
+          {/* Información Básica */}
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>📝 Título de la Semana *</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className={styles.formInput}
+              placeholder="Ej: Introducción y Fundamentos"
               required
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Descripción
-            </label>
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>📄 Descripción</label>
             <textarea
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className={styles.formInput}
               rows={3}
+              placeholder="Describe brevemente el contenido y propósito de esta semana..."
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              🎯 Objetivos (JSON Array)
-            </label>
-            <textarea
-              value={formData.objectives}
-              onChange={(e) =>
-                setFormData({ ...formData, objectives: e.target.value })
-              }
-              className="w-full border border-gray-300 rounded-md px-3 py-2 font-mono text-sm"
-              rows={4}
-              placeholder='["Objetivo 1", "Objetivo 2"]'
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              📋 Temas (JSON Array)
-            </label>
-            <textarea
-              value={formData.topics}
-              onChange={(e) =>
-                setFormData({ ...formData, topics: e.target.value })
-              }
-              className="w-full border border-gray-300 rounded-md px-3 py-2 font-mono text-sm"
-              rows={4}
-              placeholder='["Tema 1", "Tema 2"]'
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Estado
-              </label>
+          {/* Configuración de Estado */}
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>🔐 Estado de Acceso</label>
               <select
                 value={formData.is_locked ? "locked" : "unlocked"}
                 onChange={(e) =>
@@ -729,40 +704,154 @@ const WeekEditModal: React.FC<WeekEditModalProps> = ({
                     is_locked: e.target.value === "locked",
                   })
                 }
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                className={styles.formSelect}
               >
                 <option value="unlocked">🔓 Disponible</option>
                 <option value="locked">🔒 Bloqueada</option>
               </select>
+              <div className={styles.helpText}>
+                Las semanas bloqueadas no son accesibles para los estudiantes
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fecha de Desbloqueo
-              </label>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>📅 Fecha de Desbloqueo</label>
               <input
-                type="date"
+                type="datetime-local"
                 value={formData.unlock_date}
                 onChange={(e) =>
                   setFormData({ ...formData, unlock_date: e.target.value })
                 }
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                className={styles.formInput}
               />
+              <div className={styles.helpText}>
+                Fecha automática de desbloqueo (opcional)
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t">
+          {/* Sección Avanzada */}
+          <div className={styles.advancedSection}>
+            <div className={styles.sectionTitle}>⚙️ Configuración Avanzada</div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>
+                🎯 Objetivos de Aprendizaje
+              </label>
+              <textarea
+                value={formData.objectives}
+                onChange={(e) =>
+                  setFormData({ ...formData, objectives: e.target.value })
+                }
+                className={styles.formTextarea}
+                rows={4}
+                placeholder='["Comprender los conceptos básicos", "Aplicar metodologías", "Desarrollar habilidades prácticas"]'
+              />
+              <div className={styles.helpText}>
+                Formato JSON: Array de strings con los objetivos de aprendizaje
+              </div>
+              {formData.objectives && (
+                <div className={styles.jsonPreview}>
+                  Vista previa: {formData.objectives}
+                </div>
+              )}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>📋 Temas a Cubrir</label>
+              <textarea
+                value={formData.topics}
+                onChange={(e) =>
+                  setFormData({ ...formData, topics: e.target.value })
+                }
+                className={styles.formTextarea}
+                rows={4}
+                placeholder='["Introducción", "Conceptos fundamentales", "Ejercicios prácticos", "Evaluación"]'
+              />
+              <div className={styles.helpText}>
+                Formato JSON: Array de strings con los temas principales
+              </div>
+              {formData.topics && (
+                <div className={styles.jsonPreview}>
+                  Vista previa: {formData.topics}
+                </div>
+              )}
+            </div>
+
+            <div className={styles.formGrid}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  ⏱️ Duración Estimada (horas)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="40"
+                  value={formData.estimated_hours || 4}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      estimated_hours: parseInt(e.target.value),
+                    })
+                  }
+                  className={styles.formInput}
+                  placeholder="4"
+                />
+                <div className={styles.helpText}>
+                  Tiempo estimado de estudio para completar la semana
+                </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>🏆 Puntos Máximos</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="1000"
+                  value={formData.max_points || 100}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      max_points: parseInt(e.target.value),
+                    })
+                  }
+                  className={styles.formInput}
+                  placeholder="100"
+                />
+                <div className={styles.helpText}>
+                  Puntos máximos que se pueden obtener en esta semana
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>
+                📝 Notas del Instructor
+              </label>
+              <textarea
+                value={formData.instructor_notes || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, instructor_notes: e.target.value })
+                }
+                className={styles.formInput}
+                rows={3}
+                placeholder="Notas privadas para el instructor sobre esta semana..."
+              />
+              <div className={styles.helpText}>
+                Notas privadas visibles solo para instructores
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.modalActions}>
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+              className={styles.cancelButton}
             >
-              Cancelar
+              ❌ Cancelar
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
+            <button type="submit" className={styles.submitButton}>
               💾 Guardar Cambios
             </button>
           </div>
@@ -810,9 +899,9 @@ const LessonCreateModal: React.FC<LessonCreateModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-bold mb-4">➕ Crear Nueva Lección</h3>
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
+        <h3 className={styles.modalTitle}>➕ Crear Nueva Lección</h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
