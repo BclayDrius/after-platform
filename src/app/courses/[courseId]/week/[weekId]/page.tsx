@@ -147,7 +147,7 @@ export default function WeekPage() {
         <PageLayout title="Cargando...">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <div className={styles.loadingSpinner}></div>
               <p>Cargando semana...</p>
             </div>
           </div>
@@ -161,15 +161,15 @@ export default function WeekPage() {
       <AuthGuard>
         <Sidebar />
         <PageLayout title="Error">
-          <div className="text-center py-12">
-            <div className="text-red-500 text-6xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-bold text-red-600 mb-2">Error</h2>
-            <p className="text-gray-600 mb-4">
+          <div className={styles.errorContainer}>
+            <div className={styles.errorIcon}>⚠️</div>
+            <h2 className={styles.errorTitle}>Error</h2>
+            <p className={styles.errorMessage}>
               {error || "Contenido no encontrado"}
             </p>
             <button
               onClick={() => router.push(`/courses/${courseId}`)}
-              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+              className={styles.errorButton}
             >
               Volver al Curso
             </button>
@@ -186,7 +186,7 @@ export default function WeekPage() {
         <div className={styles.weekContainer}>
           {/* Header de la Semana */}
           <div className={styles.weekHeader}>
-            <div className="flex justify-between items-start mb-4">
+            <div className={styles.headerActions}>
               <button
                 onClick={() => router.push(`/courses/${courseId}`)}
                 className={styles.backButton}

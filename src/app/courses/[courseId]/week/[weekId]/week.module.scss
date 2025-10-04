@@ -604,3 +604,75 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+// Est
+ilos para estados de carga y error .loadingSpinner {
+    width: 48px;
+    height: 48px;
+    border: 2px solid #e5e7eb;
+    border-bottom: 2px solid #3b82f6;
+    border-radius: 50%;
+    margin: 0 auto 1rem auto;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.errorContainer {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.errorIcon {
+    color: #ef4444;
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.errorTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #dc2626;
+    margin-bottom: 0.5rem;
+}
+
+.errorMessage {
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+
+.errorButton {
+    background: #3b82f6;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+        background: #2563eb;
+    }
+}
+
+.headerActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+// Ajustar el bullet point
+.objectivesCard ul li .bullet {
+    color: #fbbf24;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}

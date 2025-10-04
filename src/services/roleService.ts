@@ -706,14 +706,14 @@ class RoleService {
       throw new Error("No tienes permisos para crear semanas en este curso");
     }
 
-    // Verificar que no exceda 12 semanas
+    // Verificar que no exceda 4 semanas por módulo
     const { count } = await supabase
       .from("course_weeks")
       .select("*", { count: "exact", head: true })
       .eq("course_id", courseId);
 
-    if (count && count >= 12) {
-      throw new Error("Un curso no puede tener más de 12 semanas");
+    if (count && count >= 4) {
+      throw new Error("Un módulo no puede tener más de 4 semanas");
     }
 
     const { data, error } = await supabase

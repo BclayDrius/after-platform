@@ -92,8 +92,8 @@ export default function CoursePage() {
 
     try {
       const weekNumber = weeks.length + 1;
-      if (weekNumber > 12) {
-        alert("No se pueden crear más de 12 semanas");
+      if (weekNumber > 4) {
+        alert("No se pueden crear más de 4 semanas por módulo");
         return;
       }
 
@@ -113,6 +113,24 @@ export default function CoursePage() {
       alert("Semana creada exitosamente");
     } catch (err: any) {
       alert(err.message || "Error al crear la semana");
+    }
+  };
+
+  const handleDeleteWeek = async (weekId: string, weekNumber: number) => {
+    if (
+      !confirm(
+        `¿Estás seguro de que quieres eliminar la Semana ${weekNumber}? Se eliminará todo su contenido.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await roleService.deleteCourseWeek(weekId);
+      await loadCourseData();
+      alert("Semana eliminada exitosamente");
+    } catch (err: any) {
+      alert(err.message || "Error al eliminar la semana");
     }
   };
 
@@ -207,7 +225,7 @@ export default function CoursePage() {
                   </div>
                   <div className={styles.statCard}>
                     <div className={styles.statLabel}>Progreso</div>
-                    <div className={styles.statValue}>{weeks.length}/12</div>
+                    <div className={styles.statValue}>{weeks.length}/4</div>
                   </div>
                 </div>
               </div>
@@ -218,7 +236,7 @@ export default function CoursePage() {
           <div className={styles.weeksSection}>
             <div className={styles.sectionHeader}>
               <h2>📅 Semanas del Curso</h2>
-              {canEdit() && weeks.length < 12 && (
+              {canEdit() && weeks.length < 4 && (
                 <button
                   onClick={handleCreateWeek}
                   className={styles.createButton}
@@ -227,6 +245,20 @@ export default function CoursePage() {
                 </button>
               )}
             </div>
+
+            {weeks.length >= 4 ? (
+              <div className={styles.completeBadge}>
+                ✅ Módulo completo: Has alcanzado el máximo de 4 semanas
+              </div>
+            ) : (
+              canEdit() &&
+              weeks.length > 0 && (
+                <div className={styles.suggestionBadge}>
+                  💡 Puedes agregar {4 - weeks.length} semanas más para
+                  completar este módulo
+                </div>
+              )
+            )}
 
             {weeks.length === 0 ? (
               <div className={styles.emptyState}>
@@ -257,8 +289,21 @@ export default function CoursePage() {
                         : ""
                     }`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
+                    {/* Botón X para eliminar semana */}
+                    {canEdit() && (
+                      <button
+                        onClick={() =>
+                          handleDeleteWeek(week.id, week.week_number)
+                        }
+                        className={styles.deleteButton}
+                        title="Eliminar semana"
+                      >
+                        ✕
+                      </button>
+                    )}
+
+                    <div className={styles.weekCardContent}>
+                      <div className={styles.weekMainContent}>
                         <div className={styles.weekHeader}>
                           <span className={styles.weekBadge}>
                             SEMANA {week.week_number}
@@ -327,13 +372,13 @@ export default function CoursePage() {
                 <div className={styles.progressHeader}>
                   <span>Progreso del Curso</span>
                   <span className={styles.progressText}>
-                    {weeks.length}/12 semanas
+                    {weeks.length}/4 semanas
                   </span>
                 </div>
                 <div className={styles.progressBar}>
                   <div
                     className={styles.progressFill}
-                    style={{ width: `${(weeks.length / 12) * 100}%` }}
+                    style={{ width: `${(weeks.length / 4) * 100}%` }}
                   ></div>
                 </div>
               </div>

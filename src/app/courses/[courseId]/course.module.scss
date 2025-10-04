@@ -816,3 +816,87 @@
         grid-template-columns: 1fr;
     }
 }
+
+//
+Botón X para eliminar semana .deleteButton {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 28px;
+    height: 28px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 50%;
+    color: #dc2626;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+    opacity: 0;
+
+    &:hover {
+        background: #dc2626;
+        color: white;
+        border-color: #dc2626;
+        transform: scale(1.1);
+    }
+}
+
+// Mostrar botón X al hacer hover en la tarjeta
+.weekCard {
+    &:hover .deleteButton {
+        opacity: 1;
+    }
+}
+
+// Ajustar el límite de semanas en mensajes
+.emptyState {
+    p {
+        &::after {
+            content: " (máximo 4 semanas por módulo)";
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+    }
+}
+
+// Estilos para badges de estado
+.completeBadge {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    border-radius: 6px;
+}
+
+.suggestionBadge {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #dbeafe;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+    border-radius: 6px;
+}
+
+// Estilos para el contenido de las tarjetas de semana
+.weekCardContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.weekMainContent {
+    flex: 1;
+}
+
+// Ajustar el bullet point
+.objectivesList ul li .bullet {
+    color: #10b981;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
