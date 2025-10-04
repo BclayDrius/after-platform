@@ -10,6 +10,7 @@ import {
 import CourseContentManager from "./CourseContentManager";
 import ConfirmModal from "./ConfirmModal";
 import Toast from "./Toast";
+import styles from "./CourseManager.module.scss";
 
 interface CourseManagerProps {
   currentUser: User;
@@ -197,7 +198,7 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
   };
 
   if (loading) {
-    return <div className="text-center py-4">Cargando...</div>;
+    return <div className={styles.loading}>Cargando...</div>;
   }
 
   // Si hay un curso seleccionado, mostrar el gestor de contenido
@@ -212,33 +213,29 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>
           {currentUser.role === "student" ? "Mis Cursos" : "Gestión de Cursos"}
         </h2>
 
         {["teacher", "admin"].includes(currentUser.role) && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className={styles.createButton}
           >
             Crear Curso
           </button>
         )}
       </div>
 
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
+      {error && <div className={styles.errorAlert}>{error}</div>}
 
       {/* Tabs for teachers and admins */}
       {["teacher", "admin"].includes(currentUser.role) && (
-        <div className="mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+        <div className={styles.tabsContainer}>
+          <div className={styles.tabsHeader}>
+            <nav className={styles.tabsNav}>
               <button
                 onClick={() => setActiveTab("courses")}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -362,14 +359,11 @@ const CourseManager: React.FC<CourseManagerProps> = ({ currentUser }) => {
 
       {/* Courses Tab */}
       {(activeTab === "courses" || currentUser.role === "student") && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className={styles.coursesGrid}>
           {courses.map((course) => (
-            <div
-              key={course.id}
-              className="border border-gray-200 rounded-lg p-4"
-            >
-              <h3 className="text-lg font-semibold mb-2">{course.title}</h3>
-              <p className="text-gray-600 text-sm mb-3">{course.description}</p>
+            <div key={course.id} className={styles.courseCard}>
+              <h3 className={styles.courseTitle}>{course.title}</h3>
+              <p className={styles.courseDescription}>{course.description}</p>
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">

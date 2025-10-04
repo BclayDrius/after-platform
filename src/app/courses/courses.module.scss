@@ -228,3 +228,17 @@
         box-shadow: 0 4px 15px $shadow-medium;
     }
 }
+
+.loadingMessage {
+    text-align: center;
+    margin-top: 2.5rem;
+    color: $text-secondary;
+    font-size: 16px;
+}
+
+.errorMessage {
+    text-align: center;
+    margin-top: 2.5rem;
+    color: #dc2626;
+    font-size: 16px;
+}

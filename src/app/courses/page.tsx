@@ -156,8 +156,9 @@ export default function Courses() {
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Cargando cursos...</p>;
-  if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
+  if (loading)
+    return <p className={styles.loadingMessage}>Cargando cursos...</p>;
+  if (error) return <p className={styles.errorMessage}>{error}</p>;
 
   const displayCourses = view === "enrolled" ? courses : allCourses;
 

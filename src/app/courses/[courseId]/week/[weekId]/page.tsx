@@ -145,8 +145,8 @@ export default function WeekPage() {
       <AuthGuard>
         <Sidebar />
         <PageLayout title="Cargando...">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingContent}>
               <div className={styles.loadingSpinner}></div>
               <p>Cargando semana...</p>
             </div>
@@ -306,7 +306,7 @@ export default function WeekPage() {
                     <h3>📈 Contenido de la Semana</h3>
                     <div>
                       {lessons.length === 0 && assignments.length === 0 ? (
-                        <p className="text-gray-500 text-center py-4">
+                        <p className={styles.emptyContentText}>
                           {canEdit()
                             ? "Aún no hay contenido. Comienza agregando lecciones o tareas."
                             : "El instructor aún no ha agregado contenido a esta semana."}
@@ -377,8 +377,8 @@ export default function WeekPage() {
                     <div className={styles.contentGrid}>
                       {lessons.map((lesson) => (
                         <div key={lesson.id} className={styles.contentCard}>
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
+                          <div className={styles.contentCardLayout}>
+                            <div className={styles.contentCardMain}>
                               <div className={styles.contentHeader}>
                                 <span className={styles.orderBadge}>
                                   #{lesson.order_index}
@@ -500,37 +500,37 @@ export default function WeekPage() {
                       {canEdit() && (
                         <button
                           onClick={() => setShowCreateAssignment(true)}
-                          className="bg-purple-500 text-white px-6 py-3 rounded hover:bg-purple-600"
+                          className={styles.createAssignmentButton}
                         >
                           ➕ Crear Primera Tarea
                         </button>
                       )}
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className={styles.assignmentsList}>
                       {assignments.map((assignment) => (
                         <div
                           key={assignment.id}
-                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                          className={styles.assignmentCard}
                         >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <h4 className="font-semibold">
+                          <div className={styles.assignmentCardLayout}>
+                            <div className={styles.assignmentCardMain}>
+                              <div className={styles.assignmentHeader}>
+                                <h4 className={styles.assignmentTitle}>
                                   {assignment.title}
                                 </h4>
                                 {assignment.is_required && (
-                                  <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                                  <span className={styles.requiredBadge}>
                                     ⚠️ Obligatoria
                                   </span>
                                 )}
                               </div>
 
-                              <p className="text-gray-600 text-sm mb-3">
+                              <p className={styles.assignmentDescription}>
                                 {assignment.description}
                               </p>
 
-                              <div className="flex items-center space-x-4 text-xs text-gray-500 mb-3">
+                              <div className={styles.assignmentMeta}>
                                 <span>
                                   🏆 {assignment.max_points} puntos máximo
                                 </span>
@@ -545,11 +545,11 @@ export default function WeekPage() {
                               </div>
 
                               {assignment.instructions && (
-                                <div className="bg-blue-50 p-3 rounded text-sm">
-                                  <h5 className="font-medium text-blue-900 mb-1">
+                                <div className={styles.instructionsBox}>
+                                  <h5 className={styles.instructionsTitle}>
                                     📋 Instrucciones:
                                   </h5>
-                                  <p className="text-blue-800">
+                                  <p className={styles.instructionsText}>
                                     {assignment.instructions.substring(0, 300)}
                                     ...
                                   </p>
@@ -557,18 +557,18 @@ export default function WeekPage() {
                               )}
                             </div>
 
-                            <div className="flex flex-col space-y-2 ml-4">
+                            <div className={styles.assignmentActions}>
                               {currentUser?.role === "student" ? (
-                                <button className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 text-sm">
+                                <button className={styles.submitButton}>
                                   📤 Entregar
                                 </button>
                               ) : (
                                 canEdit() && (
                                   <>
-                                    <button className="text-blue-600 hover:text-blue-800 text-sm">
+                                    <button className={styles.editButton}>
                                       ✏️ Editar
                                     </button>
-                                    <button className="text-red-600 hover:text-red-800 text-sm">
+                                    <button className={styles.deleteButton}>
                                       🗑️ Eliminar
                                     </button>
                                   </>
@@ -650,13 +650,13 @@ const WeekEditModal: React.FC<WeekEditModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-bold mb-4">
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
+        <h3 className={styles.modalTitle}>
           ✏️ Editar Semana {week.week_number}
         </h3>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className={styles.modalForm}>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Título de la Semana *
