@@ -162,7 +162,7 @@ export default function CoursePage() {
         <div className={styles.courseContainer}>
           {/* Header del Curso */}
           <div className={styles.courseHeader}>
-            <div className="flex justify-between items-start mb-4">
+            <div className={styles.courseHeaderButtons}>
               <button
                 onClick={() => router.push("/courses")}
                 className={styles.backButton}
@@ -374,95 +374,144 @@ const CourseEditModal: React.FC<CourseEditModalProps> = ({
     duration_weeks: course.duration_weeks,
   });
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = "El título es obligatorio";
+    }
+
+    if (formData.max_students < 1 || formData.max_students > 100) {
+      newErrors.max_students = "Debe ser entre 1 y 100 estudiantes";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    if (validateForm()) {
+      onSave(formData);
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-bold mb-4">✏️ Editar Curso</h3>
+    <div className={`${styles.modalOverlay} ${styles.courseEditModal}`}>
+      <div className={styles.modalContainer}>
+        <div className={styles.modalHeader}>
+          <h3>✏️ Editar Curso</h3>
+          <button
+            onClick={onCancel}
+            className={styles.closeButton}
+            type="button"
+          >
+            ✕
+          </button>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Título del Curso *
-            </label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Descripción
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
-              rows={4}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nivel
-              </label>
-              <select
-                value={formData.level}
-                onChange={(e) =>
-                  setFormData({ ...formData, level: e.target.value as any })
-                }
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-              >
-                <option value="beginner">Principiante</option>
-                <option value="intermediate">Intermedio</option>
-                <option value="advanced">Avanzado</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Máximo Estudiantes
+        <form onSubmit={handleSubmit}>
+          <div className={styles.modalBody}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>
+                Título del Curso <span className={styles.required}>*</span>
               </label>
               <input
-                type="number"
-                value={formData.max_students}
+                type="text"
+                value={formData.title}
                 onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    max_students: parseInt(e.target.value),
-                  })
+                  setFormData({ ...formData, title: e.target.value })
                 }
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                min="1"
-                max="100"
+                className={`${styles.formInput} ${
+                  errors.title ? styles.error : ""
+                }`}
+                placeholder="ej: Desarrollo Web Avanzado"
+                required
               />
+              {errors.title && (
+                <div className={styles.formError}>{errors.title}</div>
+              )}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>
+                Descripción <span className={styles.optional}>(opcional)</span>
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                className={styles.formTextarea}
+                rows={4}
+                placeholder="Describe de qué trata el curso, qué aprenderán los estudiantes..."
+              />
+              <div className={styles.formHint}>
+                Una buena descripción ayuda a los estudiantes a entender el
+                valor del curso
+              </div>
+            </div>
+
+            <div className={`${styles.formGrid} ${styles.cols2}`}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  Nivel del Curso <span className={styles.required}>*</span>
+                </label>
+                <select
+                  value={formData.level}
+                  onChange={(e) =>
+                    setFormData({ ...formData, level: e.target.value as any })
+                  }
+                  className={styles.formSelect}
+                  required
+                >
+                  <option value="beginner">🟢 Principiante</option>
+                  <option value="intermediate">🟡 Intermedio</option>
+                  <option value="advanced">🔴 Avanzado</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  Máximo Estudiantes <span className={styles.required}>*</span>
+                </label>
+                <input
+                  type="number"
+                  value={formData.max_students}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      max_students: parseInt(e.target.value),
+                    })
+                  }
+                  className={`${styles.formInput} ${
+                    errors.max_students ? styles.error : ""
+                  }`}
+                  min="1"
+                  max="100"
+                  placeholder="25"
+                  required
+                />
+                {errors.max_students && (
+                  <div className={styles.formError}>{errors.max_students}</div>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t">
+          <div className={styles.modalActions}>
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+              className={`${styles.button} ${styles.secondary}`}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className={`${styles.button} ${styles.primary}`}
             >
               💾 Guardar Cambios
             </button>

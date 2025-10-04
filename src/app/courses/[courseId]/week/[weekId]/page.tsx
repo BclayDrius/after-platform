@@ -12,6 +12,7 @@ import {
   Lesson,
   User,
 } from "@/services/roleService";
+import styles from "./week.module.scss";
 
 export default function WeekPage() {
   const params = useParams();
@@ -182,52 +183,43 @@ export default function WeekPage() {
     <AuthGuard>
       <Sidebar />
       <PageLayout title={`${course.title} - Semana ${week.week_number}`}>
-        <div className="max-w-6xl mx-auto">
+        <div className={styles.weekContainer}>
           {/* Header de la Semana */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className={styles.weekHeader}>
             <div className="flex justify-between items-start mb-4">
               <button
                 onClick={() => router.push(`/courses/${courseId}`)}
-                className="text-blue-600 hover:text-blue-800 mb-2 flex items-center"
+                className={styles.backButton}
               >
                 ← Volver al Curso
               </button>
               {canEdit() && (
                 <button
                   onClick={() => setShowEditWeek(true)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center"
+                  className={styles.editButton}
                 >
                   ✏️ Editar Semana
                 </button>
               )}
             </div>
 
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="bg-blue-100 text-blue-800 text-lg font-bold px-4 py-2 rounded">
-                SEMANA {week.week_number}
-              </div>
+            <div className={styles.weekInfo}>
+              <div className={styles.weekBadge}>SEMANA {week.week_number}</div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {week.title}
-                </h1>
-                <p className="text-gray-600">{week.description}</p>
+                <h1 className={styles.weekTitle}>{week.title}</h1>
+                <p className={styles.weekDescription}>{week.description}</p>
               </div>
             </div>
 
             {/* Objetivos y Temas */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className={styles.objectivesGrid}>
               {week.objectives && week.objectives.length > 0 && (
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-green-900 mb-2">
-                    🎯 Objetivos de Aprendizaje
-                  </h3>
-                  <ul className="space-y-1">
+                <div className={styles.objectivesCard}>
+                  <h3>🎯 Objetivos de Aprendizaje</h3>
+                  <ul>
                     {week.objectives.map((objective, idx) => (
-                      <li
-                        key={idx}
-                        className="text-green-800 text-sm flex items-start"
-                      >
-                        <span className="text-green-500 mr-2">•</span>
+                      <li key={idx}>
+                        <span className="bullet">•</span>
                         {objective}
                       </li>
                     ))}
@@ -236,16 +228,13 @@ export default function WeekPage() {
               )}
 
               {week.topics && week.topics.length > 0 && (
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-blue-900 mb-2">
-                    📋 Temas a Cubrir
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
+                <div
+                  className={`${styles.objectivesCard} ${styles.topicsCard}`}
+                >
+                  <h3>📋 Temas a Cubrir</h3>
+                  <div className={styles.topicsList}>
                     {week.topics.map((topic, idx) => (
-                      <span
-                        key={idx}
-                        className="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded"
-                      >
+                      <span key={idx} className={styles.topicTag}>
                         {topic}
                       </span>
                     ))}
@@ -256,35 +245,29 @@ export default function WeekPage() {
           </div>
 
           {/* Tabs de Contenido */}
-          <div className="bg-white rounded-lg shadow-lg">
-            <div className="border-b border-gray-200">
-              <nav className="flex space-x-8 px-6">
+          <div className={styles.contentSection}>
+            <div className={styles.tabsHeader}>
+              <nav className={styles.tabsNav}>
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === "overview"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
+                  className={`${styles.tab} ${
+                    activeTab === "overview" ? styles.active : ""
                   }`}
                 >
                   📊 Resumen
                 </button>
                 <button
                   onClick={() => setActiveTab("lessons")}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === "lessons"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
+                  className={`${styles.tab} ${
+                    activeTab === "lessons" ? styles.active : ""
                   }`}
                 >
                   📖 Lecciones ({lessons.length})
                 </button>
                 <button
                   onClick={() => setActiveTab("assignments")}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === "assignments"
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700"
+                  className={`${styles.tab} ${
+                    activeTab === "assignments" ? styles.active : ""
                   }`}
                 >
                   📝 Tareas ({assignments.length})
@@ -292,42 +275,36 @@ export default function WeekPage() {
               </nav>
             </div>
 
-            <div className="p-6">
+            <div className={styles.tabContent}>
               {/* Tab: Resumen */}
               {activeTab === "overview" && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-blue-50 p-4 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-blue-600">
-                        {lessons.length}
-                      </div>
-                      <div className="text-blue-800 text-sm">Lecciones</div>
+                <div>
+                  <div className={styles.statsGrid}>
+                    <div className={`${styles.statCard} ${styles.blue}`}>
+                      <div className={styles.statValue}>{lessons.length}</div>
+                      <div className={styles.statLabel}>Lecciones</div>
                     </div>
-                    <div className="bg-purple-50 p-4 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-purple-600">
+                    <div className={`${styles.statCard} ${styles.purple}`}>
+                      <div className={styles.statValue}>
                         {assignments.length}
                       </div>
-                      <div className="text-purple-800 text-sm">Tareas</div>
+                      <div className={styles.statLabel}>Tareas</div>
                     </div>
-                    <div className="bg-green-50 p-4 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-green-600">
+                    <div className={`${styles.statCard} ${styles.green}`}>
+                      <div className={styles.statValue}>
                         {lessons.reduce(
                           (total, lesson) => total + lesson.duration_minutes,
                           0
                         )}
                       </div>
-                      <div className="text-green-800 text-sm">
-                        Minutos Total
-                      </div>
+                      <div className={styles.statLabel}>Minutos Total</div>
                     </div>
                   </div>
 
                   {/* Progreso de la semana */}
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-semibold mb-3">
-                      📈 Contenido de la Semana
-                    </h3>
-                    <div className="space-y-2">
+                  <div className={styles.progressCard}>
+                    <h3>📈 Contenido de la Semana</h3>
+                    <div>
                       {lessons.length === 0 && assignments.length === 0 ? (
                         <p className="text-gray-500 text-center py-4">
                           {canEdit()
@@ -337,21 +314,21 @@ export default function WeekPage() {
                       ) : (
                         <>
                           {lessons.length > 0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">
+                            <div className={styles.progressItem}>
+                              <span className={styles.progressLabel}>
                                 📖 Lecciones completadas
                               </span>
-                              <span className="text-sm font-medium">
+                              <span className={styles.progressValue}>
                                 0/{lessons.length}
                               </span>
                             </div>
                           )}
                           {assignments.length > 0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">
+                            <div className={styles.progressItem}>
+                              <span className={styles.progressLabel}>
                                 📝 Tareas entregadas
                               </span>
-                              <span className="text-sm font-medium">
+                              <span className={styles.progressValue}>
                                 0/{assignments.length}
                               </span>
                             </div>
@@ -366,12 +343,12 @@ export default function WeekPage() {
               {/* Tab: Lecciones */}
               {activeTab === "lessons" && (
                 <div>
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-semibold">📖 Lecciones</h3>
+                  <div className={styles.tabHeader}>
+                    <h3>📖 Lecciones</h3>
                     {canEdit() && (
                       <button
                         onClick={() => setShowCreateLesson(true)}
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                        className={`${styles.createButton}`}
                       >
                         ➕ Crear Lección
                       </button>
@@ -379,12 +356,10 @@ export default function WeekPage() {
                   </div>
 
                   {lessons.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="text-gray-400 text-6xl mb-4">📖</div>
-                      <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                        No hay lecciones
-                      </h3>
-                      <p className="text-gray-500 mb-4">
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyIcon}>📖</div>
+                      <h3>No hay lecciones</h3>
+                      <p>
                         {canEdit()
                           ? "Comienza creando la primera lección de esta semana"
                           : "El instructor aún no ha creado lecciones para esta semana"}
@@ -392,39 +367,28 @@ export default function WeekPage() {
                       {canEdit() && (
                         <button
                           onClick={() => setShowCreateLesson(true)}
-                          className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600"
+                          className={styles.createButton}
                         >
                           ➕ Crear Primera Lección
                         </button>
                       )}
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className={styles.contentGrid}>
                       {lessons.map((lesson) => (
-                        <div
-                          key={lesson.id}
-                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                        >
+                        <div key={lesson.id} className={styles.contentCard}>
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <span className="bg-gray-100 text-gray-700 text-xs font-bold px-2 py-1 rounded">
+                              <div className={styles.contentHeader}>
+                                <span className={styles.orderBadge}>
                                   #{lesson.order_index}
                                 </span>
-                                <h4 className="font-semibold">
+                                <h4 className={styles.contentTitle}>
                                   {lesson.title}
                                 </h4>
                                 <span
-                                  className={`text-xs px-2 py-1 rounded font-medium ${
-                                    lesson.type === "video"
-                                      ? "bg-red-100 text-red-800"
-                                      : lesson.type === "reading"
-                                      ? "bg-blue-100 text-blue-800"
-                                      : lesson.type === "exercise"
-                                      ? "bg-green-100 text-green-800"
-                                      : lesson.type === "quiz"
-                                      ? "bg-yellow-100 text-yellow-800"
-                                      : "bg-gray-100 text-gray-800"
+                                  className={`${styles.typeBadge} ${
+                                    styles[lesson.type]
                                   }`}
                                 >
                                   {lesson.type === "video"
@@ -439,59 +403,61 @@ export default function WeekPage() {
                                   {lesson.type}
                                 </span>
                                 {lesson.is_required && (
-                                  <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                                  <span className={styles.requiredBadge}>
                                     ⚠️ Obligatoria
                                   </span>
                                 )}
                               </div>
 
-                              <p className="text-gray-600 text-sm mb-2">
+                              <p className={styles.contentDescription}>
                                 {lesson.description}
                               </p>
 
-                              <div className="flex items-center space-x-4 text-xs text-gray-500">
+                              <div className={styles.contentMeta}>
                                 <span>⏱️ {lesson.duration_minutes} min</span>
                                 <span>🏆 {lesson.points_value} puntos</span>
                               </div>
 
                               {lesson.content_text && (
-                                <div className="mt-3 p-3 bg-gray-50 rounded text-sm">
-                                  <p className="text-gray-700">
+                                <div className={styles.contentPreview}>
+                                  <p>
                                     {lesson.content_text.substring(0, 200)}...
                                   </p>
                                 </div>
                               )}
 
                               {lesson.content_url && (
-                                <div className="mt-2">
-                                  <a
-                                    href={lesson.content_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:text-blue-800 text-sm"
-                                  >
-                                    🔗 Ver recurso externo
-                                  </a>
-                                </div>
+                                <a
+                                  href={lesson.content_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={styles.contentLink}
+                                >
+                                  🔗 Ver recurso externo
+                                </a>
                               )}
                             </div>
 
-                            <div className="flex flex-col space-y-2 ml-4">
+                            <div className={styles.contentActions}>
                               {currentUser?.role === "student" ? (
-                                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
+                                <button
+                                  className={`${styles.actionButton} ${styles.primary}`}
+                                >
                                   ▶️ Comenzar
                                 </button>
                               ) : (
                                 canEdit() && (
                                   <>
-                                    <button className="text-blue-600 hover:text-blue-800 text-sm">
+                                    <button
+                                      className={`${styles.actionButton} ${styles.secondary}`}
+                                    >
                                       ✏️ Editar
                                     </button>
                                     <button
                                       onClick={() =>
                                         handleDeleteLesson(lesson.id)
                                       }
-                                      className="text-red-600 hover:text-red-800 text-sm"
+                                      className={`${styles.actionButton} ${styles.danger}`}
                                     >
                                       🗑️ Eliminar
                                     </button>
@@ -510,12 +476,12 @@ export default function WeekPage() {
               {/* Tab: Tareas */}
               {activeTab === "assignments" && (
                 <div>
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-semibold">📝 Tareas</h3>
+                  <div className={styles.tabHeader}>
+                    <h3>📝 Tareas</h3>
                     {canEdit() && (
                       <button
                         onClick={() => setShowCreateAssignment(true)}
-                        className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+                        className={`${styles.createButton} ${styles.purple}`}
                       >
                         ➕ Crear Tarea
                       </button>
@@ -523,12 +489,10 @@ export default function WeekPage() {
                   </div>
 
                   {assignments.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="text-gray-400 text-6xl mb-4">📝</div>
-                      <h3 className="text-xl font-semibold text-gray-600 mb-2">
-                        No hay tareas
-                      </h3>
-                      <p className="text-gray-500 mb-4">
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyIcon}>📝</div>
+                      <h3>No hay tareas</h3>
+                      <p>
                         {canEdit()
                           ? "Comienza creando la primera tarea de esta semana"
                           : "El instructor aún no ha creado tareas para esta semana"}
